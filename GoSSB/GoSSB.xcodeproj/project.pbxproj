@@ -123,6 +123,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		C9570F52278641280095EFFF /* Build libssb-go.a for all architectures */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -137,7 +138,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export GOROOT=${PROJECT_DIR}/Sources/.goroot\ncd ${PROJECT_DIR}/Sources\nmake --debug=\"v\"\n";
+			shellScript = "export GOROOT=${PROJECT_DIR}/Sources/.goroot\ncd ${PROJECT_DIR}/Sources\nmake --debug=\"a\"\n";
 		};
 		C9570F532786414B0095EFFF /* Install Go */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -173,7 +174,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export XCFRAMEWORK=${PROJECT_DIR}/Products/GoSSB.xcframework\nrm -rf $XCFRAMEWORK\n\nxcodebuild -create-xcframework \\\n    -library ${BUILD_DIR}/iPhoneOS-arm64/libssb-go.a \\\n    -headers ${PROJECT_DIR}/Sources/include \\\n    -library ${BUILD_DIR}/iPhoneSimulator-arm64_x86_64/libssb-go.a \\\n    -headers ${PROJECT_DIR}/Sources/include \\\n    -output $XCFRAMEWORK\n\n#mkdir ${XCFRAMEWORK}/ios-arm64_x86_64-simulator\n#cp -r ${XCFRAMEWORK}/ios-x86_64-simulator/Headers ${XCFRAMEWORK}/ios-arm64_x86_64-simulator\n#rm -r ${XCFRAMEWORK}/ios-x86_64-simulator\n#lipo -create -output ${XCFRAMEWORK}/ios-arm64_x86_64-simulator/libssb-go.a ${BUILD_DIR}/iphonesimulator-x86_64/libssb-go.a ${BUILD_DIR}/iphonesimulator-arm64/libssb-go.a\n \n";
+			shellScript = "export XCFRAMEWORK=${PROJECT_DIR}/Products/GoSSB.xcframework\nrm -rf $XCFRAMEWORK\n\nxcodebuild -create-xcframework \\\n    -library ${BUILD_DIR}/iPhoneOS-arm64/libssb-go.a \\\n    -headers ${PROJECT_DIR}/Sources/include \\\n    -library ${BUILD_DIR}/iPhoneSimulator-arm64_x86_64/libssb-go.a \\\n    -headers ${PROJECT_DIR}/Sources/include \\\n    -library ${BUILD_DIR}/MacOSX-arm64_x86_64/libssb-go.a \\\n    -headers ${PROJECT_DIR}/Sources/include \\\n    -output $XCFRAMEWORK\n\n#mkdir ${XCFRAMEWORK}/ios-arm64_x86_64-simulator\n#cp -r ${XCFRAMEWORK}/ios-x86_64-simulator/Headers ${XCFRAMEWORK}/ios-arm64_x86_64-simulator\n#rm -r ${XCFRAMEWORK}/ios-x86_64-simulator\n#lipo -create -output ${XCFRAMEWORK}/ios-arm64_x86_64-simulator/libssb-go.a ${BUILD_DIR}/iphonesimulator-x86_64/libssb-go.a ${BUILD_DIR}/iphonesimulator-arm64/libssb-go.a\n \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
