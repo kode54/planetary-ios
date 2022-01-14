@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 class EditAboutView: UIView, Saveable, UITextViewDelegate {
 

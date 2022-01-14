@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Logger
 
 /// Manages sending missions to nearby stars
 class MissionControlCenter {
@@ -52,7 +53,7 @@ class MissionControlCenter {
         guard self.state == .stopped else {
             return
         }
-        Log.info("Mission Control Center started operations")
+        Logger.shared.info("Mission Control Center started operations")
         self.state = .started
         self.sendMissionTimer.start(fireImmediately: false)
         self.refreshTimer.start(fireImmediately: false)
@@ -64,7 +65,7 @@ class MissionControlCenter {
         guard self.state == .paused else {
             return
         }
-        Log.info("Mission Control Center resumed operations")
+        Logger.shared.info("Mission Control Center resumed operations")
         self.state = .started
         self.sendMissionTimer.start(fireImmediately: false)
         self.refreshTimer.start(fireImmediately: false)
@@ -76,7 +77,7 @@ class MissionControlCenter {
         guard self.state == .started else {
             return
         }
-        Log.info("Mission Control Center paused operations")
+        Logger.shared.info("Mission Control Center paused operations")
         self.state = .paused
         self.sendMissionTimer.stop()
         self.refreshTimer.stop()
@@ -88,7 +89,7 @@ class MissionControlCenter {
         guard self.state != .stopped else {
             return
         }
-        Log.info("Mission Control Center stopped operations")
+        Logger.shared.info("Mission Control Center stopped operations")
         self.state = .stopped
         self.sendMissionTimer.stop()
         self.refreshTimer.stop()
@@ -97,7 +98,7 @@ class MissionControlCenter {
     
     /// Sends an adhoc mission disregarding Mission Control Center state
     func sendMission() {
-        Log.info("Mission Control Center is sending adhoc missions")
+        Logger.shared.info("Mission Control Center is sending adhoc missions")
         let sendMissionOperation = SendMissionOperation(quality: .high)
         let refreshOperation = RefreshOperation(refreshLoad: .tiny)
         refreshOperation.addDependency(sendMissionOperation)
@@ -107,11 +108,11 @@ class MissionControlCenter {
     
     private func sendMissions() {
         guard self.sendMissionBackgroundTaskIdentifier == .invalid else {
-            Log.info("Mission Controller Center skipped a mission as there is one in progress.")
+            Logger.shared.info("Mission Controller Center skipped a mission as there is one in progress.")
             return
         }
         
-        Log.info("Mission Control Center is sending a mission")
+        Logger.shared.info("Mission Control Center is sending a mission")
         let sendMissionOperation = SendMissionOperation(quality: .high)
         
         let taskName = "SendMissionBackgroundTask"
@@ -135,11 +136,11 @@ class MissionControlCenter {
     
     private func pokeRefresh() {
         guard self.refreshBackgroundTaskIdentifier == .invalid else {
-            Log.info("Mission Controller Center skipped a refresh as there is one in progress.")
+            Logger.shared.info("Mission Controller Center skipped a refresh as there is one in progress.")
             return
         }
         
-        Log.info("Mission Control Center is doing a tiny refresh")
+        Logger.shared.info("Mission Control Center is doing a tiny refresh")
         let refreshOperation = RefreshOperation()
         refreshOperation.refreshLoad = .tiny
         

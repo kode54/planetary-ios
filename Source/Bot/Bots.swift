@@ -4,11 +4,12 @@
 //
 
 import Foundation
+import Bot
 
 class Bots {
 
     static var all: [Bot] {
-        return [FakeBot.shared, GoBot.shared]
+        return [Bot.shared]
     }
 
     static func bot(named name: String) -> Bot? {
@@ -17,7 +18,7 @@ class Bots {
     }
 
     static var current: Bot {
-        return self._bot
+        return Bot.shared
     }
 
     static func select(_ bot: Bot) {
@@ -29,6 +30,7 @@ class Bots {
     }
 
     // TODO might need NullBot?
-    // default is FakeBot to ensure Bots.current is not optional
-    private static var _bot: Bot = GoBot.shared
+    // default is FakeBot to ensure Bot.shared is not optional
+    private static var _bot: Bot = Bot.shared
+    
 }

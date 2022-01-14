@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 extension UIViewController {
 
@@ -32,14 +36,16 @@ extension UIViewController {
 
     private func _block(_ identity: Identity) {
         //AppController.shared.showProgress()
-        Bots.current.block(identity) { [weak self] (message, error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            AppController.shared.hideProgress()
-            if let error = error {
-                self?.alert(error: error)
-            } else {
-                Analytics.shared.trackDidBlockIdentity()
+        Bot.shared.block(identity) { [weak self] (message, error) in
+            DispatchQueue.main.async {
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
+                AppController.shared.hideProgress()
+                if let error = error {
+                    self?.alert(error: error)
+                } else {
+                    Analytics.shared.trackDidBlockIdentity()
+                }
             }
         }
     }

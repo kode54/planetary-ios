@@ -7,26 +7,28 @@
 //
 
 import Foundation
+import Logger
+import Bot
 
 class SuspendOperation: AsynchronousOperation {
 
     private(set) var error: Error?
     
     override func main() {
-        Log.info("SuspendOperation started.")
+        Logger.shared.info("SuspendOperation started.")
         
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. SuspendOperation finished.")
+            Logger.shared.info("Not logged in. SuspendOperation finished.")
             self.error = BotError.notLoggedIn
             self.finish()
             return
         }
         
-        Bots.current.suspend()
+        Bot.shared.suspend()
         
-        Log.info("SuspendOperation finished.")
+        Logger.shared.info("SuspendOperation finished.")
         self.finish()
     }
     

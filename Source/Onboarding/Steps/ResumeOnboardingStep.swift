@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Bot
 
 class ResumeOnboardingStep: OnboardingStep {
 
@@ -31,8 +34,8 @@ class ResumeOnboardingStep: OnboardingStep {
 
         Onboarding.resume() {
             [weak self] context, error in
-            CrashReporting.shared.reportIfNeeded(error: error)
-            if Log.optional(error) { self?.alert(); return }
+            Monitor.shared.reportIfNeeded(error: error)
+            if Logger.shared.optional(error) { self?.alert(); return }
             self?.data.context = context
             self?.scheduledNext()
         }
@@ -59,7 +62,7 @@ class ResumeOnboardingStep: OnboardingStep {
         let reset = UIAlertAction(title: Text.Onboarding.startOver.text,
                                   style: .destructive) { _ in
                                     let configuration = AppConfiguration.current
-                                    Bots.current.logout { _ in
+                                    Bot.shared.logout { _ in
                                         configuration?.unapply()
                                         if let configuration = configuration {
                                             AppConfigurations.delete(configuration)

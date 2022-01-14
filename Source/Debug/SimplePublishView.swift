@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Logger
+import Bot
 
 class SimplePublishViewController: UIViewController {
     
@@ -90,19 +92,19 @@ class SimplePublishViewController: UIViewController {
             return
         }
         let p = Post(text: t)
-        GoBot.shared.publish(p) {
+        Bot.shared.publish(p) {
             newMsg, error in
             DispatchQueue.main.async {
                 self.textView.text = ""
                 self.textView.endEditing(true)
                 
                 if let err = error {
-                    Log.unexpected(.apiError, "err during publish")
-                    Log.optional(err)
+                    Logger.shared.unexpected(.apiError, "err during publish")
+                    Logger.shared.optional(err)
                     self.label.text = "warning: publish err: \(err.localizedDescription)"
                     return
                 }
-                Log.info("made new message: \(newMsg)")
+                Logger.shared.info("made new message: \(newMsg)")
                 self.navigationController?.popViewController(animated: true)
             }
         }

@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import Logger
+import Monitor
+import Bot
 
 class FollowerTableViewController: AboutTableViewController {
 
@@ -36,9 +39,9 @@ class FollowerTableViewController: AboutTableViewController {
     }
 
     override func load(completion: @escaping () -> Void) {
-        Bots.current.followers(identity: self.identity) { (abouts: [About], error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.followers(identity: self.identity) { (abouts: [About], error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             self.title = Text.followedByShortCount.text(["count": "\(abouts.count)"])
             self.allAbouts = abouts.sorted()
             completion()

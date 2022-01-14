@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 extension Blob.Metadata {
 
@@ -26,7 +27,6 @@ extension Blob.Metadata {
 extension Blob.Metadata.Dimensions {
 
     init(_ size: CGSize) {
-        self.width = Int(size.width)
-        self.height = Int(size.height)
+        self.init(width: Int(size.width), height: Int(size.height))
     }
 }

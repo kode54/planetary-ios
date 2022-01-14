@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class ChannelViewController: ContentViewController {
 
@@ -65,13 +69,13 @@ class ChannelViewController: ContentViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Channel")
+        Monitor.shared.record("Did Show Channel")
         Analytics.shared.trackDidShowScreen(screenName: "channel")
     }
 
     private func load(animated: Bool = false) {
-        Bots.current.posts(with: self.hashtag) { [weak self] proxy, error in
-            Log.optional(error)
+        Bot.shared.posts(with: self.hashtag) { [weak self] proxy, error in
+            Logger.shared.optional(error)
             DispatchQueue.main.async { [weak self] in
                 self?.removeLoadingAnimation()
                 self?.refreshControl.endRefreshing()

@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Logger
+import Bot
 
 class LoadBundleOperation: AsynchronousOperation {
 
@@ -20,12 +22,12 @@ class LoadBundleOperation: AsynchronousOperation {
     
 
     override func main() {
-        Log.info("LoadBundleOperation started.")
+        Logger.shared.info("LoadBundleOperation started.")
         
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. LoadBundleOperation finished.")
+            Logger.shared.info("Not logged in. LoadBundleOperation finished.")
             self.error = BotError.notLoggedIn
             self.finish()
             return
@@ -37,12 +39,12 @@ class LoadBundleOperation: AsynchronousOperation {
         feedPaths.forEach { path in
             group.enter()
             let url = URL(fileURLWithPath: path)
-            Log.info("Preloading feed \(url.lastPathComponent)...")
-            Bots.current.preloadFeed(at: url) { (error) in
+            Logger.shared.info("Preloading feed \(url.lastPathComponent)...")
+            Bot.shared.preloadFeed(at: url) { (error) in
                 if let error = error {
-                    Log.info("Preloading feed \(url.lastPathComponent) failed with error: \(error.localizedDescription).")
+                    Logger.shared.info("Preloading feed \(url.lastPathComponent) failed with error: \(error.localizedDescription).")
                 } else {
-                    Log.info("Feed \(url.lastPathComponent) was preloaded successfully.")
+                    Logger.shared.info("Feed \(url.lastPathComponent) was preloaded successfully.")
                 }
                 group.leave()
             }
@@ -60,12 +62,12 @@ class LoadBundleOperation: AsynchronousOperation {
             group.enter()
             let url = URL(fileURLWithPath: path)
             let identifier = blobIdentifiers[url.lastPathComponent]!
-            Log.info("Preloading blob \(identifier)...")
-            Bots.current.store(url: url, for: identifier) { (_, error) in
+            Logger.shared.info("Preloading blob \(identifier)...")
+            Bot.shared.store(url: url, for: identifier) { (_, error) in
                 if let error = error {
-                    Log.info("Preloading blob \(identifier) failed with error: \(error.localizedDescription).")
+                    Logger.shared.info("Preloading blob \(identifier) failed with error: \(error.localizedDescription).")
                 } else {
-                    Log.info("Blob \(identifier) was preloaded successfully.")
+                    Logger.shared.info("Blob \(identifier) was preloaded successfully.")
                 }
                 group.leave()
             }

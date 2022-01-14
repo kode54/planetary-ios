@@ -34,7 +34,7 @@ class EarlyAccessOnboardingViewController: UINavigationController {
 
     required init?(coder aDecoder: NSCoder) {
         //fatalError("init(coder:) has not been implemented")
-        CrashReporting.shared.reportIfNeeded(error: Error.new(errorDescription: "init(coder:) has not been implemented")
+        Monitor.shared.reportIfNeeded(error: Error.new(errorDescription: "init(coder:) has not been implemented")
     }
 
     // MARK: Content presentation
@@ -169,7 +169,7 @@ class EarlyAccessOnboardingViewController: UINavigationController {
         for identity in Identities.verse.all {
             bot.follow(identity.value) {
                 _, error in
-                Log.optional(error)
+                Logger.shared.optional(error)
             }
         }
 
@@ -181,7 +181,7 @@ class EarlyAccessOnboardingViewController: UINavigationController {
     private func letPubsFollow(using bot: Bot, with identity: Identity) {
         self.letPubFollow(identity) {
             [weak self] error in
-            Log.optional(error)
+            Logger.shared.optional(error)
             self?.syncAndRefresh(using: bot)
         }
     }
@@ -225,10 +225,10 @@ class EarlyAccessOnboardingViewController: UINavigationController {
     private func syncAndRefresh(using bot: Bot) {
         bot.sync() {
             error, _ in
-            Log.optional(error)
+            Logger.shared.optional(error)
             bot.refresh() {
                 [weak self] error, _ in
-                Log.optional(error)
+                Logger.shared.optional(error)
                 self?.endOnboarding()
             }
         }
@@ -236,7 +236,7 @@ class EarlyAccessOnboardingViewController: UINavigationController {
 
     // TODO this needs to clean up everything if there were errors
     private func alert(optional error: Error?) -> Bool {
-        guard Log.optional(error) else { return false }
+        guard Logger.shared.optional(error) else { return false }
         AppController.shared.hideProgress() {
             let controller = self.presentedViewController ?? self
             controller.alert(message: "Apologies, some thing went wrong.  We've logged the error for investigation, but please try again.",

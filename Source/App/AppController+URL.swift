@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Bot
 
 extension AppController {
 
@@ -17,7 +20,7 @@ extension AppController {
     }
 
     func open(url: URL, completion: ((Bool) -> Void)? = nil) {
-        Log.info("open(url): \(url.absoluteString)")
+        Logger.shared.info("open(url): \(url.absoluteString)")
         if url.absoluteString.isHashtag {
             self.pushChannelViewController(for: url.absoluteString)
         } else if let identifier = url.identifier {
@@ -30,7 +33,7 @@ extension AppController {
     }
     
     func open(string: String) {
-        Log.info("open(string): \(string)")
+        Logger.shared.info("open(string): \(string)")
         switch string.prefix(1) {
         case "&":
             self.pushBlobViewController(for: string)
@@ -67,7 +70,7 @@ extension AppController {
     
     func redeem(invite: String) {
         guard let featureController = self.mainViewController?.selectedViewController as? UINavigationController else {
-            Log.unexpected(.missingValue, "Selected view controller is not a navigation controller")
+            Logger.shared.unexpected(.missingValue, "Selected view controller is not a navigation controller")
             return
         }
         let controller = UIAlertController(title: "This is an invite to a Pub",
@@ -91,8 +94,8 @@ extension AppController {
                         self?.hideProgress()
                     }
                 case .failure(let error):
-                    Log.optional(error)
-                    CrashReporting.shared.reportIfNeeded(error: error)
+                    Logger.shared.optional(error)
+                    Monitor.shared.reportIfNeeded(error: error)
                     DispatchQueue.main.async {
                         self?.hideProgress()
                         self?.alert(error: error)
@@ -126,12 +129,14 @@ extension AppController {
     }
     
     func pushThreadViewController(for identifier: MessageIdentifier) {
-        Bots.current.thread(rootKey: identifier) { (root, _, error) in
-            if let root = root {
-                let controller = ThreadViewController(with: root)
-                self.push(controller)
-            } else if let error = error {
-                self.alert(error: error)
+        Bot.shared.thread(rootKey: identifier) { (root, _, error) in
+            DispatchQueue.main.async {
+                if let root = root {
+                    let controller = ThreadViewController(with: root)
+                    self.push(controller)
+                } else if let error = error {
+                    self.alert(error: error)
+                }
             }
         }
         
@@ -146,7 +151,7 @@ extension AppController {
     // reset the root controller, not push into a child feature controller
     func push(_ controller: UIViewController, animated: Bool = true) {
         guard let featureController = self.mainViewController?.selectedViewController as? UINavigationController else {
-            Log.unexpected(.missingValue, "Selected view controller is not a navigation controller")
+            Logger.shared.unexpected(.missingValue, "Selected view controller is not a navigation controller")
             return
         }
         featureController.pushViewController(controller, animated: animated)

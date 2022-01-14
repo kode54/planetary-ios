@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Monitor
+import Analytics
+import Bot
 
 class EditAboutViewController: ContentViewController, Saveable, SaveableDelegate {
 
@@ -48,7 +51,7 @@ class EditAboutViewController: ContentViewController, Saveable, SaveableDelegate
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Edit About")
+        Monitor.shared.record("Did Show Edit About")
         Analytics.shared.trackDidShowScreen(screenName: "edit_about")
         self.aboutView.becomeFirstResponder()
     }

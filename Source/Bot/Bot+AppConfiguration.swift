@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 extension Bot {
 
@@ -20,11 +21,9 @@ extension Bot {
         guard let network = configuration.network else { completion(false); return }
         guard let secret = configuration.secret else { completion(false); return }
 
-        Bots.current.login(network: network,
-                           hmacKey: configuration.hmacKey,
-                           secret: secret)
-        {
-            error in
+        Bot.shared.login(network: network,
+                         hmacKey: configuration.hmacKey,
+                         secret: secret) { error in
             let loggedIn = ((error as? BotError) == .alreadyLoggedIn) || error == nil
             completion(loggedIn)
         }

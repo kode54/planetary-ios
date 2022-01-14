@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 /// Composite view of the PostCellView, a ReplyTextView, and a bottom separator.
 class PostReplyView: KeyValueView {

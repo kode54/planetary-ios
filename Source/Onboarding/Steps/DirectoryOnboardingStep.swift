@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Logger
 
 class DirectoryOnboardingStep: OnboardingStep, UITableViewDataSource, UITableViewDelegate {
 
@@ -62,7 +63,7 @@ class DirectoryOnboardingStep: OnboardingStep, UITableViewDataSource, UITableVie
         if self.data.simulated { self.next(); return }
 
         guard let context = self.data.context else {
-            Log.unexpected(.missingValue, "Expecting self.data.context, skipping step")
+            Logger.shared.unexpected(.missingValue, "Expecting self.data.context, skipping step")
             self.next()
             return
         }
@@ -83,7 +84,7 @@ class DirectoryOnboardingStep: OnboardingStep, UITableViewDataSource, UITableVie
             // invite pubs
             Onboarding.invitePubsToFollow(context.identity) {
                 [weak self] success, error in
-                Log.optional(error)
+                Logger.shared.optional(error)
                 self?.view.lookReady()
                 guard success else { return }
                 self?.next()

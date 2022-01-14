@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class ThreadViewController: ContentViewController {
 
@@ -163,7 +167,7 @@ class ThreadViewController: ContentViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Post")
+        Monitor.shared.record("Did Show Post")
         Analytics.shared.trackDidShowScreen(screenName: "post")
         self.replyTextViewBecomeFirstResponderIfNecessary()
     }
@@ -175,9 +179,9 @@ class ThreadViewController: ContentViewController {
 
     private func load(animated: Bool = true, completion: (() -> Void)? = nil) {
         let post = self.post
-        Bots.current.thread(keyValue: post) { [weak self] root, replies, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.thread(keyValue: post) { [weak self] root, replies, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             self?.refreshControl.endRefreshing()
             if let error = error {
                 self?.alert(error: error)
@@ -330,9 +334,9 @@ class ThreadViewController: ContentViewController {
         let post = Post(attributedText: text, root: self.rootKey, branches: [self.branchKey])
         let images = self.galleryView.images
         //AppController.shared.showProgress()
-        Bots.current.publish(post, with: images) { [weak self] key, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.publish(post, with: images) { [weak self] key, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             AppController.shared.hideProgress()
             if let error = error {
                 self?.alert(error: error)
@@ -419,9 +423,9 @@ extension ThreadViewController: ThreadInteractionViewDelegate {
                                root: self.rootKey,
                                branches: [self.branchKey])
         //AppController.shared.showProgress()
-        Bots.current.publish(content: vote) { [weak self] key, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.publish(content: vote) { [weak self] key, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             DispatchQueue.main.async { [weak self] in
                 if let error = error {
                     AppController.shared.hideProgress()

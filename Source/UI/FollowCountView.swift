@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import Bot
 
 class FollowCountView: UIView {
 

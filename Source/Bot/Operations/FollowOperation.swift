@@ -7,6 +7,9 @@
 //
 
 import Foundation
+import Logger
+import Monitor
+import Bot
 
 class FollowOperation: AsynchronousOperation {
 
@@ -19,22 +22,22 @@ class FollowOperation: AsynchronousOperation {
     }
     
     override func main() {
-        Log.info("FollowOperation started.")
+        Logger.shared.info("FollowOperation started.")
         
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. FollowOperation finished.")
+            Logger.shared.info("Not logged in. FollowOperation finished.")
             self.error = BotError.notLoggedIn
             self.finish()
             return
         }
         
-        Bots.current.follow(self.identity) { [weak self] (contact, error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.follow(self.identity) { [weak self] (contact, error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             self?.error = error
-            Log.info("FollowOperation finished.")
+            Logger.shared.info("FollowOperation finished.")
             self?.finish()
         }
     }

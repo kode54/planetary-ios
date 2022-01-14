@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Logger
+import Bot
 
 extension Onboarding {
 
@@ -51,7 +53,7 @@ extension Onboarding {
             let data = try NSKeyedArchiver.archivedData(withRootObject: dictionary, requiringSecureCoding: false)
             Keychain.set(data, for: Status.key)
         } catch {
-            Log.fatal(.missingValue, "Could not save onboarding.statuses to Keychain: \(error)")
+            Logger.shared.fatal(.missingValue, "Could not save onboarding.statuses to Keychain: \(error)")
         }
     }
 }

@@ -80,11 +80,11 @@ class BotsViewController: UIViewController {
     // MARK: Actions
 
     @objc func goBotButtonTouchUpInside() {
-        self.confirmIdentity(bot: Bots.current)
+        self.confirmIdentity(bot: Bot.shared)
     }
 
     @objc func fakeBotButtonTouchUpInside() {
-        self.confirmIdentity(bot: Bots.current)
+        self.confirmIdentity(bot: Bot.shared)
     }
 
     private func confirmIdentity(bot: Bot) {
@@ -125,14 +125,14 @@ class BotsViewController: UIViewController {
             return
         }
 
-        // this set Bots.current
+        // this set Bot.shared
         Bots.select(bot)
 
         bot.login(network: network, hmacKey: AppConfiguration.current?.hmacKey, secret: secret) {
             [weak self] error in
             if let e = error {
-                Log.unexpected(.apiError, "login failed")
-                Log.optional(e)
+                Logger.shared.unexpected(.apiError, "login failed")
+                Logger.shared.optional(e)
                 return
             }
             let controller = HomeViewController()

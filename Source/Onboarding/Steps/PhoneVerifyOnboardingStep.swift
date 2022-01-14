@@ -9,6 +9,8 @@
 import Foundation
 import PhoneNumberKit
 import UIKit
+import Logger
+import Monitor
 
 class PhoneVerifyOnboardingStep: OnboardingStep {
 
@@ -91,8 +93,8 @@ class PhoneVerifyOnboardingStep: OnboardingStep {
         Onboarding.verifyCode(code, country: "\(number.countryCode)", phone: "\(number.nationalNumber)") {
             [weak self] success, error in
             self?.view.lookReady()
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             if success { self?.next() }
             else { self?.view.textField.shake() }
         }

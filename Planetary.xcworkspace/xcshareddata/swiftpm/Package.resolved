@@ -1,0 +1,133 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Analytics",
+        "repositoryURL": "https://github.com/planetary-social/analytics-ios",
+        "state": {
+          "branch": null,
+          "revision": "eb8c724133c0c5e3eeeac547cf87c126e1fb82fb",
+          "version": "0.0.4"
+        }
+      },
+      {
+        "package": "Blocked",
+        "repositoryURL": "https://github.com/planetary-social/blocked-ios",
+        "state": {
+          "branch": null,
+          "revision": "edd0fbb5122c9bc1401e0d98a2e3a703a6c8ef2d",
+          "version": "0.0.1"
+        }
+      },
+      {
+        "package": "Bot",
+        "repositoryURL": "https://github.com/planetary-social/bot-ios",
+        "state": {
+          "branch": null,
+          "revision": "aaf2a67e8b657859d385d3a7508132e54f1bdb9e",
+          "version": "0.0.2"
+        }
+      },
+      {
+        "package": "Bugsnag",
+        "repositoryURL": "https://github.com/bugsnag/bugsnag-cocoa",
+        "state": {
+          "branch": null,
+          "revision": "f68fa95c94cc1f293ff3c2daa28920c2e823c743",
+          "version": "6.16.0"
+        }
+      },
+      {
+        "package": "CocoaLumberjack",
+        "repositoryURL": "https://github.com/CocoaLumberjack/CocoaLumberjack.git",
+        "state": {
+          "branch": null,
+          "revision": "80ada1f753b0d53d9b57c465936a7c4169375002",
+          "version": "3.7.4"
+        }
+      },
+      {
+        "package": "Logger",
+        "repositoryURL": "https://github.com/planetary-social/logger-ios",
+        "state": {
+          "branch": null,
+          "revision": "5b669c247170bb31dea75996a01bac11ea638dcb",
+          "version": "0.0.3"
+        }
+      },
+      {
+        "package": "Moderator",
+        "repositoryURL": "https://github.com/planetary-social/moderator-ios",
+        "state": {
+          "branch": null,
+          "revision": "93ea0a984ec6b433a8da2c4ecc971b3df776f92a",
+          "version": "0.0.3"
+        }
+      },
+      {
+        "package": "Monitor",
+        "repositoryURL": "https://github.com/planetary-social/monitor-ios",
+        "state": {
+          "branch": null,
+          "revision": "43a9184bde49d44aaa5635fd62295a4f65b601c3",
+          "version": "0.0.1"
+        }
+      },
+      {
+        "package": "PostHog",
+        "repositoryURL": "https://github.com/PostHog/posthog-ios",
+        "state": {
+          "branch": null,
+          "revision": "d3177a24686ead147f5e4ff4d7e284ca4be33870",
+          "version": "1.4.4"
+        }
+      },
+      {
+        "package": "Push",
+        "repositoryURL": "https://github.com/planetary-social/push-ios",
+        "state": {
+          "branch": null,
+          "revision": "d3ba4c0b49cc79aa783bfaa67638cfea7eb79fac",
+          "version": "0.0.1"
+        }
+      },
+      {
+        "package": "Secrets",
+        "repositoryURL": "https://github.com/planetary-social/secrets-ios",
+        "state": {
+          "branch": null,
+          "revision": "0952c06da65df7691fa7a5600a0ff3dd602088f2",
+          "version": "0.0.3"
+        }
+      },
+      {
+        "package": "SQLite.swift",
+        "repositoryURL": "https://github.com/stephencelis/SQLite.swift.git",
+        "state": {
+          "branch": null,
+          "revision": "60a65015f6402b7c34b9a924f755ca0a73afeeaa",
+          "version": "0.13.1"
+        }
+      },
+      {
+        "package": "SSB",
+        "repositoryURL": "https://github.com/planetary-social/ssb-ios",
+        "state": {
+          "branch": null,
+          "revision": "559df3a367e126d207a1308effb0fd24ec058197",
+          "version": "0.0.4"
+        }
+      },
+      {
+        "package": "swift-log",
+        "repositoryURL": "https://github.com/apple/swift-log.git",
+        "state": {
+          "branch": null,
+          "revision": "5d66f7ba25daf4f94100e7022febf3c75e37a6c7",
+          "version": "1.4.2"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

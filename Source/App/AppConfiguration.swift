@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Bot
+import SSB
 
 class AppConfiguration: NSObject, NSCoding {
 

@@ -7,6 +7,10 @@
 //
 
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 protocol AboutTableViewDelegate {
     func reload()
@@ -46,10 +50,10 @@ class AboutTableViewDataSource: NSObject {
     }
 
     private func loadAbouts(for identities: [Identity], completion: (() -> Void)? = nil) {
-        Bots.current.abouts(identities: identities) {
+        Bot.shared.abouts(identities: identities) {
             [weak self] abouts, error in
-            CrashReporting.shared.reportIfNeeded(error: error)
-            if Log.optional(error) { return }
+            Monitor.shared.reportIfNeeded(error: error)
+            if Logger.shared.optional(error) { return }
             for about in abouts { self?.abouts[about.identity] = about }
             completion?()
         }

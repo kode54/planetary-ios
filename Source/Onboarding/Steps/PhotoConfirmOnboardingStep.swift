@@ -9,6 +9,8 @@
 import Foundation
 import Photos
 import UIKit
+import Logger
+import Monitor
 
 class PhotoConfirmOnboardingStep: OnboardingStep {
 
@@ -64,13 +66,13 @@ class PhotoConfirmOnboardingStep: OnboardingStep {
         if self.data.simulated { self.next(); return }
 
         guard let image = self.data.image else {
-            Log.unexpected(.missingValue, "Expected self.data.image, skipping step")
+            Logger.shared.unexpected(.missingValue, "Expected self.data.image, skipping step")
             self.next()
             return
         }
 
         guard let context = self.data.context else {
-            Log.unexpected(.missingValue, "Was expecting self.data.context, skipping step")
+            Logger.shared.unexpected(.missingValue, "Was expecting self.data.context, skipping step")
             self.next()
             return
         }
@@ -81,25 +83,27 @@ class PhotoConfirmOnboardingStep: OnboardingStep {
         context.bot.addBlob(jpegOf: image, largestDimension: 1000) {
             [weak self] image, error in
 
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Monitor.shared.reportIfNeeded(error: error)
             
-            if Log.optional(error) {
+            if Logger.shared.optional(error) {
                 self?.view.lookReady()
                 return
             }
 
             guard let about = context.about?.mutatedCopy(image: image) else {
-                Log.unexpected(.missingValue, "Expected context.about, will have to retry")
+                Logger.shared.unexpected(.missingValue, "Expected context.about, will have to retry")
                 self?.view.lookReady()
                 return
             }
 
             context.bot.publish(content: about) {
                 _, error in
-                self?.view.lookReady()
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
-                if error == nil { self?.next() }
+                DispatchQueue.main.async {
+                    self?.view.lookReady()
+                    Logger.shared.optional(error)
+                    Monitor.shared.reportIfNeeded(error: error)
+                    if error == nil { self?.next() }
+                }
             }
         }
     }

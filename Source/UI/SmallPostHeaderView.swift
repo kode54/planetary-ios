@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Analytics
+import Bot
 
 class SmallPostHeaderView: UIView {
 

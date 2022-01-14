@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Logger
+import Monitor
 
 extension Onboarding {
 
@@ -14,11 +16,11 @@ extension Onboarding {
     static func fixIdentityFollowBack() {
         guard UserDefaults.standard.fixIdentityFollowBack else { return }
         guard let identity = AppConfiguration.current?.identity else { return }
-        Log.info("\(#function)")
+        Logger.shared.info("\(#function)")
         Onboarding.invitePubsToFollow(identity) {
             success, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
         }
     }
 }

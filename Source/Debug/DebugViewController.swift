@@ -1,5 +1,9 @@
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class DebugViewController: DebugTableViewController {
 
@@ -24,7 +28,7 @@ class DebugViewController: DebugTableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Debug")
+        Monitor.shared.record("Did Show Debug")
         Analytics.shared.trackDidShowScreen(screenName: "debug")
     }
 
@@ -159,7 +163,7 @@ class DebugViewController: DebugTableViewController {
                                              actionClosure:
             {
                 cell in
-                guard let controller = Support.shared.myTicketsViewController(from: Bots.current.identity) else {
+                guard let controller = Support.shared.myTicketsViewController(from: Bot.shared.identity) else {
                     self.alert(message: Text.Error.supportNotConfigured.text)
                     return
                 }
@@ -212,7 +216,7 @@ class DebugViewController: DebugTableViewController {
             {
                 cell in
                 cell.accessoryType = .disclosureIndicator
-                cell.detailTextLabel?.text = "\(UserDefaults.standard.trackedEvents().count) / \(Analytics.shared.lexicon().count)"
+                cell.detailTextLabel?.text = "\(Analytics.shared.trackedEvents().count) / \(Analytics.shared.lexicon().count)"
             },
                                              actionClosure:
             {
@@ -227,7 +231,7 @@ class DebugViewController: DebugTableViewController {
                                          actionClosure:
             {
                 [unowned self] cell in
-                UserDefaults.standard.clearTrackedEvents()
+                Analytics.shared.clearTrackedEvents()
                 self.updateSettings()
             })]
 
@@ -269,9 +273,9 @@ class DebugViewController: DebugTableViewController {
                                              actionClosure:
             {
                 [unowned self] cell in
-                Bots.current.createSecret {
+                Bot.shared.createSecret {
                     secret, error in
-                    Log.optional(error)
+                    Logger.shared.optional(error)
                     guard let secret = secret else { return }
                     let controller = AppConfigurationViewController(with: secret)
                     self.navigationController?.pushViewController(controller, animated: true)
@@ -311,7 +315,7 @@ class DebugViewController: DebugTableViewController {
                                              actionClosure:
             {
                 cell in
-                let controller = BotViewController(bot: GoBot.shared, configuration: self.configuration)
+                let controller = BotViewController(bot: Bot.shared, configuration: self.configuration)
                 self.navigationController?.pushViewController(controller, animated: true)
             }
         )]
@@ -437,8 +441,8 @@ class DebugViewController: DebugTableViewController {
             }
         }
         
-        let botFileURLs = Bots.current.logFileUrls
-        let appFileUrls = Log.fileUrls
+        let botFileURLs = Bot.shared.logFileUrls
+        let appFileUrls = Logger.shared.fileUrls
         if appFileUrls.isEmpty, botFileURLs.isEmpty {
             self.alert(message: "There aren't logs yet.")
         } else if shouldZip {
@@ -505,14 +509,14 @@ class DebugViewController: DebugTableViewController {
     }
     
     private func applyConfigurationAndDismiss() {
-        Bots.current.logout {
+        Bot.shared.logout {
             [weak self] error in
             
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             
             Analytics.shared.forget()
-            CrashReporting.shared.forget()
+            Monitor.shared.forget()
             
             AppController.shared.relaunch()
             self?.dismiss(animated: true, completion: nil)

@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Analytics
+import Bot
 
 protocol OnboardingStepDelegate: class {
 
@@ -30,6 +32,19 @@ class OnboardingStepData {
     var name: String? = nil
     var phone: String? = nil
     var simulated = false
+
+    var analytics: Analytics.OnboardingStepData {
+        return Analytics.OnboardingStepData(allowedBackup: allowedBackup,
+                                            allowedContacts: allowedContacts,
+                                            bio: bio,
+                                            followingCount: following.count,
+                                            hasImage: image != nil,
+                                            joinedDirectory: joinedDirectory,
+                                            publicWebHosting: publicWebHosting,
+                                            nameLength: name?.count ?? 0,
+                                            phone: phone,
+                                            simulated: simulated)
+    }
 }
 
 class OnboardingStep: NSObject {
@@ -69,6 +84,27 @@ class OnboardingStep: NSObject {
                 case .photoConfirm: return .photoConfirm
                 case .resume: return .resume
                 case .start: return .start
+            }
+        }
+
+        var analytics: Analytics.OnboardingStep {
+            switch self {
+            case .backup: return .backup
+            case .benefits: return .benefits
+            case .birthday: return .birthday
+            case .bio: return .bio
+            case .contacts: return .contacts
+            case .directory: return .directory
+            case .done: return .done
+            case .earlyAccess: return .earlyAccess
+            case .join: return .join
+            case .name: return .name
+            case .phone: return .phone
+            case .phoneVerify: return .phoneVerify
+            case .photo: return .photo
+            case .photoConfirm: return .photoConfirm
+            case .resume: return .resume
+            case .start: return .start
             }
         }
     }
@@ -138,7 +174,7 @@ class OnboardingStep: NSObject {
     /// This is explicitly final because there should be no
     /// changes to when the step is tracked by Analytics.shared.
     final func track() {
-        Analytics.shared.trackOnboarding(self.name)
+        Analytics.shared.trackOnboarding(self.name.analytics)
     }
 
     func willStart() {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 extension NSMutableAttributedString {
 
@@ -22,6 +23,7 @@ extension Hashtag {
     var attributedString: NSMutableAttributedString {
         return NSMutableAttributedString(from: self)
     }
+    
 }
 
 extension NSMutableAttributedString {

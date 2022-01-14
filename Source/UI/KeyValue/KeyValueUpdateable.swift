@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 protocol KeyValueUpdateable {
     func update(with keyValue: KeyValue)

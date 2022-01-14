@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class NewPostViewController: ContentViewController {
 
@@ -119,17 +123,18 @@ class NewPostViewController: ContentViewController {
         let images = self.galleryView.images
 
         self.lookBusy()
-        Bots.current.publish(post, with: images) {
-            [weak self] identifier, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            if let error = error {
-                self?.alert(error: error)
-            } else {
-                Analytics.shared.trackDidPost()
-                self?.dismiss(didPublish: post)
+        Bot.shared.publish(post, with: images) { [weak self] identifier, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.alert(error: error)
+                } else {
+                    Analytics.shared.trackDidPost()
+                    self?.dismiss(didPublish: post)
+                }
+                self?.lookReady()
             }
-            self?.lookReady()
         }
     }
 

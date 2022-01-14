@@ -7,6 +7,9 @@
 //
 
 import Foundation
+import Logger
+import Monitor
+import Bot
 
 /// Attempts connection to a Planetary's pub. It redeems invitation to these pubs if the user
 /// didn't do it previously.
@@ -35,31 +38,29 @@ class SendMissionOperation: AsynchronousOperation {
     }
     
     override func main() {
-        Log.info("SendMissionOperation started.")
+        Logger.shared.info("SendMissionOperation started.")
         
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. SendMissionOperation finished.")
+            Logger.shared.info("Not logged in. SendMissionOperation finished.")
             self.result = .failure(BotError.notLoggedIn)
             self.finish()
             return
         }
         
-        let queue = OperationQueue.current?.underlyingQueue ?? .global(qos: .background)
-        
         let knownStars = Set(Environment.Constellation.stars)
         let knownStarsAddresses = knownStars.map { $0.address }
         
-        Log.debug("Seeding known stars stars...")
-        Bots.current.seedPubAddresses(addresses: knownStarsAddresses, queue: queue) { [weak self, quality] result in
-            Log.debug("Retrieving list of available stars...")
-            Bots.current.pubs(queue: queue) { (pubs, error) in
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+        Logger.shared.debug("Seeding known stars stars...")
+        Bot.shared.seedPubAddresses(addresses: knownStarsAddresses) { [weak self, quality] result in
+            Logger.shared.debug("Retrieving list of available stars...")
+            Bot.shared.pubs { (pubs, error) in
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 
                 if let error = error {
-                    Log.info("Couldn't get list of available stars. SendMissionOperation finished.")
+                    Logger.shared.info("Couldn't get list of available stars. SendMissionOperation finished.")
                     self?.result = .failure(error)
                     self?.finish()
                     return
@@ -78,7 +79,7 @@ class SendMissionOperation: AsynchronousOperation {
                 // Check if the current number of available stars is enough
                 let numberOfMissingStars = SendMissionOperation.minNumberOfStars - availableStars.count
                 if numberOfMissingStars > 0 {
-                    Log.debug("There are \(numberOfMissingStars) missing stars.")
+                    Logger.shared.debug("There are \(numberOfMissingStars) missing stars.")
                     
                     // Let's take a random set of stars to reach the minimum and create Redeem Invite
                     // operations
@@ -91,7 +92,7 @@ class SendMissionOperation: AsynchronousOperation {
                     // Lets sync to available stars and newly redeemed stars
                     starsToSync = availableStars.union(missingStars)
                 } else {
-                    Log.debug("There are \(availableStars.count) available stars.")
+                    Logger.shared.debug("There are \(availableStars.count) available stars.")
                     
                     // No need to redeem invite
                     redeemInviteOperations = []
@@ -112,7 +113,7 @@ class SendMissionOperation: AsynchronousOperation {
                 let operations = redeemInviteOperations + [syncOperation]
                 self?.operationQueue.addOperations(operations, waitUntilFinished: true)
                 
-                Log.info("SendMissionOperation finished.")
+                Logger.shared.info("SendMissionOperation finished.")
                 self?.result = .success(())
                 self?.finish()
             }

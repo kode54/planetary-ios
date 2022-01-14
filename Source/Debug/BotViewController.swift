@@ -8,12 +8,14 @@
 
 import Foundation
 import UIKit
+import Logger
+import Bot
 
 class BotViewController: DebugTableViewController {
 
     var bot: Bot
     let configuration: AppConfiguration?
-    var statistics: BotStatistics = MutableBotStatistics()
+    var statistics: Statistics = Statistics()
 
     // MARK: Lifecycle
 
@@ -34,7 +36,7 @@ class BotViewController: DebugTableViewController {
     }
 
     internal override func updateSettings() {
-        self.settings = [self.info(), self.operations(), self.peers(), self.repo()]
+        self.settings = [self.info(), /*self.operations(),*/ self.peers(), self.repo()]
         super.updateSettings()
     }
 
@@ -48,7 +50,7 @@ class BotViewController: DebugTableViewController {
                     self?.updateSettings()
                 }
             case .failure(let error):
-                Log.optional(error)
+                Logger.shared.optional(error)
             }
         }
         let operationQueue = OperationQueue()
@@ -76,66 +78,62 @@ class BotViewController: DebugTableViewController {
                     cell in
                     cell.accessoryType = .disclosureIndicator
                 },
-                                                 actionClosure:
-                {
-                    [unowned self] cell in
-                    let controller = GoBotViewController()
-                    self.navigationController?.pushViewController(controller, animated: true)
-                }
+                                                 actionClosure: nil
             )]
         }
 
         return ("Info", settings, nil)
     }
 
-    private func operations() -> DebugTableViewController.Settings {
-
-        var settings: [DebugTableViewCellModel] = []
-
-        settings += [DebugTableViewCellModel(title: "Sync",
-                                             cellReuseIdentifier: DebugValueTableViewCell.className,
-                                             valueClosure:
-            {
-                cell in
-                if self.bot.isSyncing { cell.showActivityIndicator() }
-                else { cell.detailTextLabel?.text = self.statistics.lastSyncText }
-            },
-                                             actionClosure:
-            {
-                [unowned self] cell in
-                cell.showActivityIndicator()
-                let sendMissionOperation = SendMissionOperation(quality: .high)
-                sendMissionOperation.completionBlock = { [weak self] in
-                    DispatchQueue.main.async { [weak self] in
-                        cell.hideActivityIndicator()
-                        self?.updateSettings()
-                    }
-                }
-                let operationQueue = OperationQueue()
-                operationQueue.addOperation(sendMissionOperation)
-            })]
-
-        settings += [DebugTableViewCellModel(title: "Refresh",
-                                             cellReuseIdentifier: DebugValueTableViewCell.className,
-                                             valueClosure:
-            {
-                cell in
-                if self.bot.isRefreshing { cell.showActivityIndicator() }
-                else { cell.detailTextLabel?.text = self.statistics.lastRefreshText }
-            },
-                                             actionClosure:
-            {
-                [unowned self] cell in
-                cell.showActivityIndicator()
-                self.bot.refresh(load: .long, queue: .main) {
-                    [weak self] _, _ in
-                    cell.hideActivityIndicator()
-                    self?.updateSettings()
-                }
-            })]
-
-        return ("Operations", settings, nil)
-    }
+//    private func operations() -> DebugTableViewController.Settings {
+//
+//        var settings: [DebugTableViewCellModel] = []
+//
+//        settings += [DebugTableViewCellModel(title: "Sync",
+//                                             cellReuseIdentifier: DebugValueTableViewCell.className,
+//                                             valueClosure:
+//            {
+//                cell in
+//                if self.bot.isSyncing { cell.showActivityIndicator() }
+//                else { cell.detailTextLabel?.text = self.statistics.lastSyncText }
+//            },
+//                                             actionClosure:
+//            {
+//                [unowned self] cell in
+//                cell.showActivityIndicator()
+//                let sendMissionOperation = SendMissionOperation(quality: .high)
+//                sendMissionOperation.completionBlock = { [weak self] in
+//                    DispatchQueue.main.async { [weak self] in
+//                        cell.hideActivityIndicator()
+//                        self?.updateSettings()
+//                    }
+//                }
+//                let operationQueue = OperationQueue()
+//                operationQueue.addOperation(sendMissionOperation)
+//            })]
+//
+//        settings += [DebugTableViewCellModel(title: "Refresh",
+//                                             cellReuseIdentifier: DebugValueTableViewCell.className,
+//                                             valueClosure:
+//            {
+//                cell in
+//                if Bot.shared.isRefreshing { cell.showActivityIndicator() }
+//                else { cell.detailTextLabel?.text = self.statistics.lastRefreshText }
+//            },
+//                                             actionClosure:
+//            {
+//                [unowned self] cell in
+//                cell.showActivityIndicator()
+//                Bot.shared.refresh(load: .long) { [weak self] _, _ in
+//                    DispatchQueue.main.async {
+//                        cell.hideActivityIndicator()
+//                        self?.updateSettings()
+//                    }
+//                }
+//            })]
+//
+//        return ("Operations", settings, nil)
+//    }
 
     private func repo() -> DebugTableViewController.Settings {
 
@@ -231,7 +229,7 @@ fileprivate extension Bot {
     }
 }
 
-fileprivate extension BotStatistics {
+fileprivate extension Statistics {
 
     var lastSyncText: String {
         return self.format(date: self.lastSyncDate, duration: self.lastSyncDuration)

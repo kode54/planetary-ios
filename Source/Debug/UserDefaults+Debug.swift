@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SSB
 
 // TODO https://app.asana.com/0/914798787098068/1122607002060947/f
 // TODO deprecate identity manager

@@ -10,6 +10,7 @@ import Foundation
 import ImageSlideshow
 import UIKit
 import SkeletonView
+import Bot
 
 class PostCellView: KeyValueView {
 
@@ -112,7 +113,7 @@ class PostCellView: KeyValueView {
         self.textView.attributedText = self.truncationData?.text ?? self.fullPostText
         
         //not so clean but it gest likes displaying.
-        if self.textView.attributedText.string.isSingleEmoji && self.keyValue?.value.content.type == Planetary.ContentType.vote {
+        if self.textView.attributedText.string.isSingleEmoji && self.keyValue?.value.content.type == ContentType.vote {
             self.textView.font = UIFont.post.body.withSize(200)
             self.textView.textAlignment = .center
         } else if self.textView.attributedText.string.isSingleEmoji,

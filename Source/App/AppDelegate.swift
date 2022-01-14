@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import Logger
+import Monitor
+import Analytics
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -22,8 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window.makeKeyAndVisible()
         self.window = window
         
-        Log.configure()
-        CrashReporting.shared.record("Launch")
+        Monitor.shared.record("Launch")
         
         // reset configurations if user enabled switch in settings
         self.resetIfNeeded()
@@ -52,13 +54,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
-        CrashReporting.shared.record("App will enter foreground")
+        Monitor.shared.record("App will enter foreground")
         AppController.shared.resume()
         Analytics.shared.trackAppForeground()
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
-        CrashReporting.shared.record("App will terminate")
+        Monitor.shared.record("App will terminate")
         AppController.shared.exit()
         Analytics.shared.trackAppExit()
     }

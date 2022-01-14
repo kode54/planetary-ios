@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Bot
 
 class BlobCache: DictionaryCache {
 
@@ -71,7 +74,7 @@ class BlobCache: DictionaryCache {
 
     private func loadImage(for identifier: BlobIdentifier) {
         
-        Bots.current.data(for: identifier) {
+        Bot.shared.data(for: identifier) {
             [weak self] identifier, data, error in
             guard let me = self else { return }
 
@@ -120,7 +123,7 @@ class BlobCache: DictionaryCache {
                 return
             }
             
-            Log.optional(error)
+            Logger.shared.optional(error)
             
             guard error == nil,
                 let httpResponse = response as? HTTPURLResponse,
@@ -138,9 +141,9 @@ class BlobCache: DictionaryCache {
                 return
             }
             
-            Bots.current.store(data: data, for: ref) { [weak self] (url, error) in
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+            Bot.shared.store(data: data, for: ref) { [weak self] (url, error) in
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 
                 if error == nil {
                     DispatchQueue.main.async {
@@ -332,7 +335,7 @@ class BlobCache: DictionaryCache {
 
             // done if below minimum bytes
             if self.bytes < self.minNumberOfBytes {
-                Log.info("Purging with count=\(from.count), bytes=\(from.numberOfBytes)")
+                Logger.shared.info("Purging with count=\(from.count), bytes=\(from.numberOfBytes)")
                 return
             }
         }
@@ -347,7 +350,7 @@ class BlobCache: DictionaryCache {
 
     /// Resets the number of bytes and clears all cached items.
     override func invalidate() {
-        Log.info("Purging with count=\(self.count), bytes=\(self.bytes)")
+        Logger.shared.info("Purging with count=\(self.count), bytes=\(self.bytes)")
         self.bytes = 0
         super.invalidate()
     }

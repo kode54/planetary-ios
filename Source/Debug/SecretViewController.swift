@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Monitor
+import Analytics
+import SSB
 
 class SecretViewController: UIViewController {
 
@@ -70,7 +73,7 @@ class SecretViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Secret")
+        Monitor.shared.record("Did Show Secret")
         Analytics.shared.trackDidShowScreen(screenName: "secret")
     }
 

@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Bot
 
 protocol KnownPubsTableViewDataSourceDelegate: class {
     func reload()
@@ -41,10 +44,10 @@ class KnownPubsTableViewDataSource: NSObject {
     }
 
     private func loadAbouts(for identities: [Identity], completion: (() -> Void)? = nil) {
-        Bots.current.abouts(identities: identities) {
+        Bot.shared.abouts(identities: identities) {
             [weak self] abouts, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             abouts.forEach { [weak self] in
                 self?.abouts[$0.identity] = $0
             }

@@ -24,8 +24,8 @@ extension Bot {
         self.sync() {
             error, _, numberOfMessages in
             if let error = error {
-                Log.unexpected(.botError, "failed to sync with pubs")
-                Log.optional(error)
+                Logger.shared.unexpected(.botError, "failed to sync with pubs")
+                Logger.shared.optional(error)
             }
             self.refresh() {
                 error, _ in

@@ -7,8 +7,11 @@
 //
 
 import Foundation
-
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class EveryoneViewController: ContentViewController {
     
@@ -160,26 +163,28 @@ class EveryoneViewController: ContentViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Everyone")
+        Monitor.shared.record("Did Show Everyone")
         Analytics.shared.trackDidShowScreen(screenName: "everyone")
     }
     
     // MARK: Load and refresh
     
     func load(animated: Bool = false) {
-        Bots.current.everyone() { [weak self] proxy, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            self?.refreshControl.endRefreshing()
-            self?.removeLoadingAnimation()
-            self?.floatingRefreshButton.hide()
-            AppController.shared.hideProgress()
-         
-            if let error = error {
-                self?.alert(error: error)
-            } else {
-                self?.updatedProxy = nil
-                self?.update(with: proxy, animated: animated)
+        Bot.shared.everyone() { [weak self] proxy, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                self?.refreshControl.endRefreshing()
+                self?.removeLoadingAnimation()
+                self?.floatingRefreshButton.hide()
+                AppController.shared.hideProgress()
+             
+                if let error = error {
+                    self?.alert(error: error)
+                } else {
+                    self?.updatedProxy = nil
+                    self?.update(with: proxy, animated: animated)
+                }
             }
         }
     }
@@ -189,7 +194,7 @@ class EveryoneViewController: ContentViewController {
             UIApplication.shared.endBackgroundTask(EveryoneViewController.refreshBackgroundTaskIdentifier)
         }
         
-        Log.info("Pull down to refresh triggering a medium refresh")
+        Logger.shared.info("Pull down to refresh triggering a medium refresh")
         let refreshOperation = RefreshOperation()
         refreshOperation.refreshLoad = .medium
         
@@ -203,8 +208,8 @@ class EveryoneViewController: ContentViewController {
         EveryoneViewController.refreshBackgroundTaskIdentifier = taskIdentifier
         
         refreshOperation.completionBlock = { [weak self] in
-            Log.optional(refreshOperation.error)
-            CrashReporting.shared.reportIfNeeded(error: refreshOperation.error)
+            Logger.shared.optional(refreshOperation.error)
+            Monitor.shared.reportIfNeeded(error: refreshOperation.error)
             
             if taskIdentifier != UIBackgroundTaskIdentifier.invalid {
                 UIApplication.shared.endBackgroundTask(taskIdentifier)
@@ -286,9 +291,9 @@ class EveryoneViewController: ContentViewController {
     
     override func didRefresh(notification: NSNotification) {
         let currentProxy = self.dataSource.data
-        Bots.current.everyone { [weak self] (newProxy, error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.everyone { [weak self] (newProxy, error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             if newProxy.count > currentProxy.count {
                 DispatchQueue.main.async { [weak self] in
                     if currentProxy.count == 0 {

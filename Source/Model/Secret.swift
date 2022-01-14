@@ -7,32 +7,8 @@
 //
 
 import Foundation
-
-struct Secret: Codable {
-
-    let curve: Algorithm
-    let id: Identity
-    let `private`: String
-    let `public`: String
-
-    init?(from string: String) {
-        guard let data = string.data(using: .utf8) else { return nil }
-        guard let secret = try? JSONDecoder().decode(Secret.self, from: data) else { return nil }
-        self = secret
-    }
-
-    func jsonString() -> String? {
-        guard let data = try? JSONEncoder().encode(self) else { return nil }
-        let string = String(data: data, encoding: .utf8)
-        return string
-    }
-
-    func jsonStringUnescaped() -> String? {
-        guard let string = self.jsonString() else { return nil }
-        let unescaped = string.replacingOccurrences(of: "\\/", with: "/", options: .literal, range: nil)
-        return unescaped
-    }
-}
+import SSB
+import Bot
 
 extension Secret {
     var identity: Identity { return self.id }

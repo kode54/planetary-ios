@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Bot
 
 class KeyValuePaginatedCollectionViewDataSource: NSObject {
     

@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
 
 class LaunchViewController: UIViewController {
 
@@ -31,7 +34,7 @@ class LaunchViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Launch")
+        Monitor.shared.record("Did Show Launch")
         Analytics.shared.trackDidShowScreen(screenName: "launch")
     }
 
@@ -80,7 +83,7 @@ class LaunchViewController: UIViewController {
         // TODO this should be an analytics track()
         // TODO include app installation UUID
         // Analytics.shared.app(launch)
-        Log.info("Launching with configuration '\(configuration.name)'")
+        Logger.shared.info("Launching with configuration '\(configuration.name)'")
 
         // note that hmac key can be nil to switch it off
         guard let network = configuration.network else { return }
@@ -89,8 +92,8 @@ class LaunchViewController: UIViewController {
         
         bot.login(network: network, hmacKey: configuration.hmacKey, secret: secret) { error in
             
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error,
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error,
                                                  metadata: ["action": "login-from-launch",
                                                             "network": network,
                                                             "identity": secret.identity])
@@ -100,16 +103,16 @@ class LaunchViewController: UIViewController {
                                                    message: Text.Error.login.text,
                                                    preferredStyle: .alert)
                 let action = UIAlertAction(title: "Restart", style: .default) { _ in
-                    Log.debug("Restarting launch...")
+                    Logger.shared.debug("Restarting launch...")
                     bot.logout { err in
                         // Don't report error here becuase the normal path is to actually receive
                         // a notLoggedIn error
-                        Log.optional(err)
+                        Logger.shared.optional(err)
                         
-                        ssbDropIndexData()
+                        bot.repair()
                         
                         Analytics.shared.forget()
-                        CrashReporting.shared.forget()
+                        Monitor.shared.forget()
                         
                         AppController.shared.relaunch()
                     }
@@ -117,17 +120,17 @@ class LaunchViewController: UIViewController {
                 controller.addAction(action)
                 
                 let reset = UIAlertAction(title: "Reset", style: .destructive) { _ in
-                    Log.debug("Resetting current configuration and restarting launch...")
+                    Logger.shared.debug("Resetting current configuration and restarting launch...")
                     AppConfiguration.current?.unapply()
                     bot.logout { err in
                         // Don't report error here becuase the normal path is to actually receive
                         // a notLoggedIn error
-                        Log.optional(err)
+                        Logger.shared.optional(err)
                         
-                        ssbDropIndexData()
+                        bot.repair()
                         
                         Analytics.shared.forget()
-                        CrashReporting.shared.forget()
+                        Monitor.shared.forget()
                         
                         AppController.shared.relaunch()
                     }
@@ -142,11 +145,19 @@ class LaunchViewController: UIViewController {
             self.launchIntoMain()
             
             bot.about { (about, aboutErr) in
-                Log.optional(aboutErr)
+                Logger.shared.optional(aboutErr)
                 // No need to show an alert to the user as we can fetch the current about later
-                CrashReporting.shared.reportIfNeeded(error: aboutErr)
-                CrashReporting.shared.identify(about: about, network: network)
-                Analytics.shared.identify(about: about, network: network)
+                Monitor.shared.reportIfNeeded(error: aboutErr)
+                if let about = about {
+                    Monitor.shared.identify(identifier: about.identity,
+                                            name: about.name,
+                                            networkKey: configuration.network!.string,
+                                            networkName: configuration.network!.name)
+
+                    Analytics.shared.identify(identifier: about.identity,
+                                              name: about.name,
+                                              network: configuration.network!.name)
+                }
             }
         }
     }

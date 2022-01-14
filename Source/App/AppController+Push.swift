@@ -9,6 +9,10 @@
 import Foundation
 import UIKit
 import UserNotifications
+import Logger
+import Monitor
+import Analytics
+import Push
 
 extension AppController {
 
@@ -99,8 +103,8 @@ extension AppController {
     private func registerForPushNotifications(completion: ((UNAuthorizationStatus) -> Void)? = nil) {
         UNUserNotificationCenter.current().requestAuthorization(options: AppController.pushNotificationOptions) {
             allowed, error in
-            CrashReporting.shared.reportIfNeeded(error: error)
-            Log.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
             DispatchQueue.main.async {
                 completion?(allowed ? .authorized : .denied)
                 guard allowed else { return }
@@ -126,11 +130,10 @@ extension AppController {
         // TODO make sure this gets called when identities are switched or added
         let identities = AppConfigurations.current.compactMap { $0.identity }
         for identity in identities {
-            PushAPI.shared.update(token, for: identity) { _, _ in
-                
+            Push.shared.update(token, for: identity) { _ in
+
             }
         }
-        Analytics.shared.updatePushToken(pushToken: token)
     }
 
     /// Asks the main view controller to update the notification tab icon.

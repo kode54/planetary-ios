@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 class AvatarButton: ImageButton {
 
@@ -31,7 +32,12 @@ class AvatarButton: ImageButton {
     }
 
     func setImageForMe() {
-        setImage(for: Bots.current.about)
+        // TODO: Check if we can get away with just the identity
+        Bot.shared.about { [weak self] about, error in
+            DispatchQueue.main.async {
+                self?.setImage(for: about)
+            }
+        }
     }
 
     func setImage(for about: About?) {

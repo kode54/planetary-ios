@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 extension Notification.Name {
     static let didUpdateAbout = Notification.Name("didUpdateAbout")

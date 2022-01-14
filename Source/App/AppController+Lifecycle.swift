@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Logger
+import Bot
 
 extension AppController {
 
@@ -47,8 +49,8 @@ extension AppController {
 extension AppController {
 
     override func didReceiveMemoryWarning() {
-        Log.info("AppController.didReceivingMemoryWarning() - invalidating caches")
+        Logger.shared.info("AppController.didReceivingMemoryWarning() - invalidating caches")
         Caches.invalidate()
-        ssbDisconnectAllPeers()
+        Bot.shared.suspend()
     }
 }

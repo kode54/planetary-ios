@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Bot
 
 class BlockedUsersViewController: ContentViewController, AboutTableViewDelegate {
 
@@ -48,15 +51,16 @@ class BlockedUsersViewController: ContentViewController, AboutTableViewDelegate 
     // MARK: Load and refresh
 
     private func load() {
-        guard let identity = Bots.current.identity else { return }
-        Bots.current.blocks(identity: identity) {
-            [weak self] identities, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            if let error = error {
-                self?.alert(error: error)
-            } else {
-                self?.dataSource.identities = identities
+        guard let identity = Bot.shared.identity else { return }
+        Bot.shared.blocks(identity: identity) { [weak self] identities, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                if let error = error {
+                    self?.alert(error: error)
+                } else {
+                    self?.dataSource.identities = identities
+                }
             }
         }
     }

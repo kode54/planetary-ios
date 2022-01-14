@@ -174,7 +174,6 @@ class ContentViewController: UIViewController, KeyboardHandling {
     }
 
     func setDebugLabel(error: Error) {
-        let error = (error as? GoBotError) ?? (error as? FakeBotError) ?? error
         self.setDebugLabel(text: "\(error)")
     }
 

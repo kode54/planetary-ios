@@ -7,26 +7,28 @@
 //
 
 import Foundation
+import Logger
+import Bot
 
 class ExitOperation: AsynchronousOperation {
 
     private(set) var error: Error?
     
     override func main() {
-        Log.info("ExitOperation started.")
+        Logger.shared.info("ExitOperation started.")
         
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. ExitOperation finished.")
+            Logger.shared.info("Not logged in. ExitOperation finished.")
             self.error = BotError.notLoggedIn
             self.finish()
             return
         }
         
-        Bots.current.exit()
+        Bot.shared.exit()
         
-        Log.info("ExitOperation finished.")
+        Logger.shared.info("ExitOperation finished.")
         self.finish()
     }
     

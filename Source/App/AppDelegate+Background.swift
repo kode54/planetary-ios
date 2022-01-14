@@ -9,6 +9,9 @@
 import BackgroundTasks
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
 
 extension AppDelegate {
 
@@ -21,7 +24,7 @@ extension AppDelegate {
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        CrashReporting.shared.record("App did enter background")
+        Monitor.shared.record("App did enter background")
         AppController.shared.suspend()
         if #available(iOS 13, *) {
             self.scheduleBackgroundTasks()
@@ -48,8 +51,7 @@ extension AppDelegate {
     }
     
     func handleBackgroundFetch(notificationsOnly: Bool = false, completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        Log.info("Handling background fetch")
-        Analytics.shared.trackBackgroundFetch()
+        Logger.shared.info("Handling background fetch")
         let sendMissionOperation = SendMissionOperation(quality: .low)
         
         let refreshOperation = RefreshOperation()
@@ -61,7 +63,7 @@ extension AppDelegate {
         DispatchQueue.global(qos: .background).async {
             operationQueue.addOperations([sendMissionOperation, refreshOperation, statisticsOperation],
                                          waitUntilFinished: true)
-            Log.info("Completed background fetch")
+            Logger.shared.info("Completed background fetch")
             Analytics.shared.trackDidBackgroundFetch()
             switch sendMissionOperation.result {
             case .success:
@@ -115,14 +117,14 @@ extension AppDelegate {
     
     private func scheduleBackgroundTask(taskRequest: BGTaskRequest) {
         do {
-            Log.info("Scheduling task \(taskRequest.identifier)")
+            Logger.shared.info("Scheduling task \(taskRequest.identifier)")
             try BGTaskScheduler.shared.submit(taskRequest)
         } catch BGTaskScheduler.Error.unavailable {
             // User could have just disabled background refresh in settings
-            Log.info("Could not schedule task \(taskRequest.identifier). Background refresh is not permitted or running in simulator.")
+            Logger.shared.info("Could not schedule task \(taskRequest.identifier). Background refresh is not permitted or running in simulator.")
         } catch let error {
-            Log.optional(error, "Could not schedule task \(taskRequest.identifier)")
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error, "Could not schedule task \(taskRequest.identifier)")
+            Monitor.shared.reportIfNeeded(error: error)
         }
     }
     
@@ -130,8 +132,7 @@ extension AppDelegate {
     
     @available(iOS 13.0, *)
     private func handleSyncTask(task: BGTask) {
-        Log.info("Handling task \(AppDelegate.syncBackgroundTaskIdentifier)")
-        Analytics.shared.trackBackgroundTask()
+        Logger.shared.info("Handling task \(AppDelegate.syncBackgroundTaskIdentifier)")
         
         // Schedule a new sync task
         self.scheduleSyncTask()
@@ -144,7 +145,7 @@ extension AppDelegate {
         let statisticsOperation = StatisticsOperation()
         
         task.expirationHandler = {
-            Log.info("Task \(AppDelegate.syncBackgroundTaskIdentifier) expired")
+            Logger.shared.info("Task \(AppDelegate.syncBackgroundTaskIdentifier) expired")
             sendMissionOperation.cancel()
             refreshOperation.cancel()
         }
@@ -153,7 +154,7 @@ extension AppDelegate {
         DispatchQueue.global(qos: .background).async {
             operationQueue.addOperations([sendMissionOperation, refreshOperation, statisticsOperation],
                                          waitUntilFinished: true)
-            Log.info("Completed task \(AppDelegate.syncBackgroundTaskIdentifier)")
+            Logger.shared.info("Completed task \(AppDelegate.syncBackgroundTaskIdentifier)")
             Analytics.shared.trackDidBackgroundTask(taskIdentifier: AppDelegate.syncBackgroundTaskIdentifier)
             task.setTaskCompleted(success: !sendMissionOperation.isCancelled)
         }
@@ -161,8 +162,7 @@ extension AppDelegate {
     
     @available(iOS 13.0, *)
     private func handleRefreshTask(task: BGTask) {
-        Log.info("Handling task \(AppDelegate.refreshBackgroundTaskIdentifier)")
-        Analytics.shared.trackBackgroundTask()
+        Logger.shared.info("Handling task \(AppDelegate.refreshBackgroundTaskIdentifier)")
         
         // Schedule a new sync task
         self.scheduleRefreshTask()
@@ -171,12 +171,12 @@ extension AppDelegate {
         refreshOperation.refreshLoad = .long
         
         task.expirationHandler = {
-            Log.info("Task \(AppDelegate.refreshBackgroundTaskIdentifier) expired")
+            Logger.shared.info("Task \(AppDelegate.refreshBackgroundTaskIdentifier) expired")
             refreshOperation.cancel()
         }
         
         refreshOperation.completionBlock = {
-            Log.info("Completed task \(AppDelegate.refreshBackgroundTaskIdentifier)")
+            Logger.shared.info("Completed task \(AppDelegate.refreshBackgroundTaskIdentifier)")
             Analytics.shared.trackDidBackgroundTask(taskIdentifier: AppDelegate.refreshBackgroundTaskIdentifier)
             task.setTaskCompleted(success: !refreshOperation.isCancelled)
         }

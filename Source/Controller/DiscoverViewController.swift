@@ -7,6 +7,10 @@
 //
 
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class DiscoverViewController: ContentViewController {
     
@@ -128,25 +132,27 @@ class DiscoverViewController: ContentViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Discover")
+        Monitor.shared.record("Did Show Discover")
         Analytics.shared.trackDidShowScreen(screenName: "discover")
     }
     
     // MARK: Load and refresh
     
     func load(animated: Bool = false) {
-        Bots.current.everyone() { [weak self] proxy, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            self?.refreshControl.endRefreshing()
-            self?.removeLoadingAnimation()
-            self?.floatingRefreshButton.hide()
-            AppController.shared.hideProgress()
-         
-            if let error = error {
-                self?.alert(error: error)
-            } else {
-                self?.update(with: proxy, animated: animated)
+        Bot.shared.everyone() { [weak self] proxy, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                self?.refreshControl.endRefreshing()
+                self?.removeLoadingAnimation()
+                self?.floatingRefreshButton.hide()
+                AppController.shared.hideProgress()
+
+                if let error = error {
+                    self?.alert(error: error)
+                } else {
+                    self?.update(with: proxy, animated: animated)
+                }
             }
         }
     }
@@ -156,7 +162,7 @@ class DiscoverViewController: ContentViewController {
             UIApplication.shared.endBackgroundTask(DiscoverViewController.refreshBackgroundTaskIdentifier)
         }
         
-        Log.info("Pull down to refresh triggering a medium refresh")
+        Logger.shared.info("Pull down to refresh triggering a medium refresh")
         let refreshOperation = RefreshOperation()
         refreshOperation.refreshLoad = .medium
         
@@ -170,8 +176,8 @@ class DiscoverViewController: ContentViewController {
         DiscoverViewController.refreshBackgroundTaskIdentifier = taskIdentifier
         
         refreshOperation.completionBlock = { [weak self] in
-            Log.optional(refreshOperation.error)
-            CrashReporting.shared.reportIfNeeded(error: refreshOperation.error)
+            Logger.shared.optional(refreshOperation.error)
+            Monitor.shared.reportIfNeeded(error: refreshOperation.error)
             
             if taskIdentifier != UIBackgroundTaskIdentifier.invalid {
                 UIApplication.shared.endBackgroundTask(taskIdentifier)
@@ -233,15 +239,17 @@ class DiscoverViewController: ContentViewController {
     override func didRefresh(notification: NSNotification) {
         let currentProxy = self.dataSource.data
         let currentKeyAtTop = currentProxy.keyValueBy(index: 0)?.key
-        Bots.current.keyAtEveryoneTop { [weak self] (key) in
+        Bot.shared.keyAtEveryoneTop { [weak self] (key) in
             guard let newKeyAtTop = key, currentKeyAtTop != newKeyAtTop else {
                 return
             }
-            if currentProxy.count == 0 {
-                self?.load(animated: true)
-            } else {
-                let shouldAnimate = self?.navigationController?.topViewController == self
-                self?.floatingRefreshButton.show(animated: shouldAnimate)
+            DispatchQueue.main.async {
+                if currentProxy.count == 0 {
+                    self?.load(animated: true)
+                } else {
+                    let shouldAnimate = self?.navigationController?.topViewController == self
+                    self?.floatingRefreshButton.show(animated: shouldAnimate)
+                }
             }
         }
     }

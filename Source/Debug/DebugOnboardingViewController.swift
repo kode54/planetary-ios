@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 class DebugOnboardingViewController: DebugTableViewController {
 
@@ -235,7 +236,7 @@ class DebugOnboardingViewController: DebugTableViewController {
 
         AppController.shared.showProgress()
         cell.showActivityIndicator()
-        Bots.current.logout() {
+        Bot.shared.logout() {
             error in
             let number = "\(self.countryTextField.text ?? "")\(self.phoneTextField.text ?? "")"
             Onboarding.start(birthdate: self.birthdate,
@@ -309,13 +310,13 @@ class DebugOnboardingViewController: DebugTableViewController {
             {
                 cell in
                 cell.showActivityIndicator()
-                PubAPI.shared.pubsAreOnline() { online, error in
-                    Log.optional(error)
-                    DispatchQueue.main.async {
-                        cell.hideActivityIndicator()
-                        cell.detailTextLabel?.text = "\(online)"
-                    }
-                }
+//                PubAPI.shared.pubsAreOnline() { online, error in
+//                    Logger.shared.optional(error)
+//                    DispatchQueue.main.async {
+//                        cell.hideActivityIndicator()
+//                        cell.detailTextLabel?.text = "\(online)"
+//                    }
+//                }
             },
                                              actionClosure: nil)]
 

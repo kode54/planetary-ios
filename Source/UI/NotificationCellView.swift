@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 class NotificationCellView: KeyValueView {
 
@@ -79,7 +80,7 @@ class NotificationCellView: KeyValueView {
 
         // action
         let shouldHideFollowButton: Bool
-        if let doesMention = keyValue.value.content.post?.doesMention(Bots.current.identity) {
+        if let doesMention = keyValue.value.content.post?.doesMention(Bot.shared.identity) {
             text.append(NSAttributedString(doesMention ? " mentioned you" : " replied",
                                            font: self.actionFont))
 
@@ -109,7 +110,7 @@ class NotificationCellView: KeyValueView {
         }
 
         self.followButton.isHidden = true
-        if let me = Bots.current.identity {
+        if let me = Bot.shared.identity {
             let relationship = Relationship(from: me, to: identity)
             relationship.load {
                 self.followButton.relationship = relationship

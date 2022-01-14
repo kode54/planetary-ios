@@ -7,6 +7,10 @@
 //
 
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class RelationshipButton: IconButton {
 
@@ -101,9 +105,9 @@ class RelationshipButton: IconButton {
         self.relationship.isFollowing = true
         self.relationship.notifyUpdate()
 
-        Bots.current.follow(self.relationship.other) { (contact, error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.follow(self.relationship.other) { (contact, error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             if error != nil {
                 Analytics.shared.trackDidFollowIdentity()
             }
@@ -122,9 +126,9 @@ class RelationshipButton: IconButton {
         self.relationship.isFollowing = false
         self.relationship.notifyUpdate()
 
-        Bots.current.unfollow(self.relationship.other) { (contact, error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.unfollow(self.relationship.other) { (contact, error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             if error != nil {
                 Analytics.shared.trackDidUnfollowIdentity()
             }

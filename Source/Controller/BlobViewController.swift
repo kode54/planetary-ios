@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Monitor
+import Analytics
+import Bot
 
 class BlobViewController: ContentViewController {
 
@@ -36,7 +39,7 @@ class BlobViewController: ContentViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Blob")
+        Monitor.shared.record("Did Show Blob")
         Analytics.shared.trackDidShowScreen(screenName: "blob")
     }
 

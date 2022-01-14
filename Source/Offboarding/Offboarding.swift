@@ -7,6 +7,10 @@
 //
 
 import Foundation
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 enum OffboardingError: Error {
     case apiError(Error)
@@ -23,7 +27,7 @@ class Offboarding {
 
     static func offboard(completion: @escaping Completion)
     {
-        guard let identity = Bots.current.identity else { completion(.mustBeLoggedIn); return }
+        guard let identity = Bot.shared.identity else { completion(.mustBeLoggedIn); return }
         guard let configuration = AppConfiguration.current else { completion(.invalidConfiguration) ; return }
         guard configuration.identity == identity else { completion(.invalidIdentity); return }
 
@@ -37,10 +41,10 @@ class Offboarding {
 
             // log out
             // errors not allowed
-            Bots.current.logout {
+            Bot.shared.logout {
                 error in
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 
                 if let error = error { completion(.botError(error)); return }
                 
@@ -62,7 +66,7 @@ class Offboarding {
                                               completion: @escaping ((Error?) -> Void))
     {
         // identities following this identity
-        Bots.current.follows(identity: identity) { (identities: [Identity], error) in
+        Bot.shared.follows(identity: identity) { (identities: [Identity], error) in
             if let error = error { completion(error); return }
             if identities.isEmpty { completion(nil); return }
 
@@ -73,7 +77,7 @@ class Offboarding {
             for identity in identities {
                 group.enter()
                 DispatchQueue.main.async(group: group) {
-                    Bots.current.unfollow(identity) {
+                    Bot.shared.unfollow(identity) {
                         _, error in
                         if let error = error { unfollowError = error }
                         group.leave()

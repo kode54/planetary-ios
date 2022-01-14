@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Bot
 
 protocol PostReplyPaginatedDataSourceDelegate: class {
     

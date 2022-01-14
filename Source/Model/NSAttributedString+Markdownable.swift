@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 extension NSAttributedString: Markdownable {
 
@@ -15,10 +16,11 @@ extension NSAttributedString: Markdownable {
     /// form, if the attributes are replaced from beginning to end, the
     /// later ranges will be invalided by the previous insertions.  So,
     /// the attributes are iterated in reverse order.
-    var markdown: String {
+    public var markdown: String {
         let string = NSMutableAttributedString(attributedString: self)
         string.removeHashtagLinkAttributes()
         string.replaceMentionLinkAttributesWithMarkdown()
         return string.string
     }
+    
 }

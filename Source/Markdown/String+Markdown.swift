@@ -8,6 +8,8 @@
 
 import Foundation
 import Down
+import Logger
+import Monitor
 
 extension String {
     
@@ -23,8 +25,8 @@ extension String {
             addUnformattedMentions(in: mutableAttributedString, styler: styler)
             return mutableAttributedString
         } catch let error {
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             return NSAttributedString(string: self)
         }
     }
@@ -74,8 +76,8 @@ extension String {
         let pattern = "[@%&][a-zA-Z0-9+/=]{44}\\.[a-z0-9]+"
         guard let regex = try? NSRegularExpression(pattern: pattern) else {
             let error = AppError.unexpected
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             return
         }
         regex.enumerateMatches(in: string, options: [], range: range) { (result, _, _) in

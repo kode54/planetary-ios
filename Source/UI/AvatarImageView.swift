@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import Keys
+import Logger
 
 class AvatarImageView: ImageView {
 
@@ -73,14 +74,14 @@ class AvatarImageView: ImageView {
         let keys = PlanetaryKeys()
         request.add(["planetary-blob-authorize": keys.verseBlobToken])
         
-        Log.info("url: \(url)")
+        Logger.shared.info("url: \(url)")
 
         let task = URLSession.shared.dataTask(with: request) {
             data, response, error in
             guard response?.httpStatusCodeError == nil else { return }
             guard let data = data else { return }
             guard let image = UIImage(data: data) else {
-                Log.unexpected(.incorrectValue, "Invalid image data for \(path)")
+                Logger.shared.unexpected(.incorrectValue, "Invalid image data for \(path)")
                 return
             }
 

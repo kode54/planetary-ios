@@ -5,19 +5,21 @@
 //  Created by Martin Dutra on 4/20/20.
 //  Copyright © 2020 Verse Communications Inc. All rights reserved.
 //
-
 import Foundation
 import ZendeskCoreSDK
 import SupportSDK
 import Keys
+import Logger
+import Bot
+
 
 class ZendeskSupport: SupportService {
-    
+
     private let zendeskURL = "https://planetarysupport.zendesk.com"
     private let tags = [Bundle.current.versionAndBuild, UIDevice.current.model, UIDevice.current.systemName, UIDevice.current.systemVersion]
-    
+
     init() {
-        Log.info("Configuring Zendesk...")
+        Logger.shared.info("Configuring Zendesk...")
         let keys = PlanetaryKeys()
         Zendesk.initialize(appId: keys.zendeskAppID,
                            clientId: keys.zendeskClientID,
@@ -26,11 +28,11 @@ class ZendeskSupport: SupportService {
         Zendesk.instance?.setIdentity(ZendeskCoreSDK.Identity.createAnonymous())
         Theme.currentTheme.primaryColor = UIColor.tint.default
     }
-    
+
     func mainViewController() -> UIViewController? {
         return ZDKHelpCenterUi.buildHelpCenterOverviewUi()
     }
-    
+
     func articleViewController(_ article: SupportArticle) -> UIViewController? {
         let config = HelpCenterUiConfiguration()
         config.showContactOptions = false
@@ -38,27 +40,27 @@ class ZendeskSupport: SupportService {
         return ZDKHelpCenterUi.buildHelpCenterArticleUi(withArticleId: id(for: article),
                                                         andConfigs: [config])
     }
-    
-    func myTicketsViewController(from reporter: Identity?) -> UIViewController? {
+
+    func myTicketsViewController(from reporter: Identifier?) -> UIViewController? {
         let reporter = reporter ?? Identity.notLoggedIn
         let config = RequestUiConfiguration()
         config.tags = tags + [reporter]
         var attachments = [RequestAttachment]()
-        if let log = Log.fileUrls.first, let data = try? Data(contentsOf: log) {
+        if let log = Logger.shared.fileUrls.first, let data = try? Data(contentsOf: log) {
             attachments.append(RequestAttachment(filename: log.lastPathComponent, data: data, fileType: .plain))
         }
-        if let log = Bots.current.logFileUrls.first, let data = try? Data(contentsOf: log) {
+        if let log = Bot.shared.logFileUrls.first, let data = try? Data(contentsOf: log) {
             attachments.append(RequestAttachment(filename: log.lastPathComponent, data: data, fileType: .plain))
         }
         config.fileAttachments = attachments
         return RequestUi.buildRequestList(with: [config])
     }
-    
+
     func newTicketViewController() -> UIViewController? {
         return _newTicketViewController()
     }
-    
-    func newTicketViewController(from reporter: Identity, reporting identity: Identity, name: String) -> UIViewController? {
+
+    func newTicketViewController(from reporter: Identifier, reporting identity: Identifier, name: String) -> UIViewController? {
         let attachment = RequestAttachment(filename: name,
                                            data: identity.utf8data(),
                                            fileType: .plain)
@@ -67,8 +69,8 @@ class ZendeskSupport: SupportService {
                                         attachments: [attachment],
                                         tags: [reporter])
     }
-    
-    func newTicketViewController(from reporter: Identity, reporting content: KeyValue, reason: SupportReason, view: UIView?) -> UIViewController? {
+
+    func newTicketViewController(from reporter: Identifier, reporting content: KeyValue, reason: SupportReason, view: UIView?) -> UIViewController? {
         // note that attachment order is important and it is
         // preferred that people see the screenshot first
         var attachments: [RequestAttachment] = []
@@ -79,7 +81,7 @@ class ZendeskSupport: SupportService {
                                              attachments: attachments,
                                              tags: [reason.rawValue])
     }
-    
+
     func id(for article: SupportArticle) -> String {
         switch article {
         case .whatIsPlanetary:
@@ -94,7 +96,7 @@ class ZendeskSupport: SupportService {
             return ids.termsOfService
         }
     }
-    
+
     func article(for id: String) -> SupportArticle? {
         switch id {
         case ids.whatIsPlanetary:
@@ -174,22 +176,22 @@ fileprivate extension UIView {
 }
 
 extension ZendeskSupport {
-    
+
     enum SupportSubject: String {
         case bugReport = "Bug Report"
         case contentReport = "Content Report"
         case userReport = "User Report"
     }
-    
-    private func _newTicketViewController(from reporter: Identity? = nil,
+
+    private func _newTicketViewController(from reporter: Identifier? = nil,
                                           subject: SupportSubject = .bugReport,
                                           attachments: [RequestAttachment] = [],
                                           tags: [String] = []) -> UIViewController {
         var attachments = attachments
-        if let log = Log.fileUrls.first, let data = try? Data(contentsOf: log) {
+        if let log = Logger.shared.fileUrls.first, let data = try? Data(contentsOf: log) {
             attachments.append(RequestAttachment(filename: log.lastPathComponent, data: data, fileType: .plain))
         }
-        if let log = Bots.current.logFileUrls.first, let data = try? Data(contentsOf: log) {
+        if let log = Bot.shared.logFileUrls.first, let data = try? Data(contentsOf: log) {
             attachments.append(RequestAttachment(filename: log.lastPathComponent, data: data, fileType: .plain))
         }
         let reporter = reporter ?? Identity.notLoggedIn

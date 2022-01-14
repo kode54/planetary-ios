@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Analytics
+import Monitor
+import Bot
 
 class DoneOnboardingStep: OnboardingStep {
     
@@ -41,14 +45,14 @@ class DoneOnboardingStep: OnboardingStep {
         
         // SIMULATE ONBOARDING
         if data.simulated {
-            Analytics.shared.trackOnboardingComplete(self.data)
+            Analytics.shared.trackOnboardingComplete(self.data.analytics)
             self.next()
             return
         }
 
         guard let me = data.context?.identity else {
-            Log.unexpected(.missingValue, "Was expecting self.data.context.person.identity, skipping step")
-            Analytics.shared.trackOnboardingComplete(self.data)
+            Logger.shared.unexpected(.missingValue, "Was expecting self.data.context.person.identity, skipping step")
+            Analytics.shared.trackOnboardingComplete(self.data.analytics)
             self.next()
             return
         }
@@ -67,7 +71,7 @@ class DoneOnboardingStep: OnboardingStep {
             let identities = Environment.PlanetarySystem.planets
             let semaphore = DispatchSemaphore(value: identities.count-1)
             for identity in identities {
-                Bots.current.follow(identity) {
+                Bot.shared.follow(identity) {
                     contact, error in
                     semaphore.signal()
                 }
@@ -82,10 +86,9 @@ class DoneOnboardingStep: OnboardingStep {
             }
             let semaphore = DispatchSemaphore(value: 0)
             let about = About(about: me, publicWebHosting: true)
-            let queue = OperationQueue.current?.underlyingQueue ?? .global(qos: .background)
-            Bots.current.publish(queue: queue, content: about) { (msg, error) in
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+            Bot.shared.publish(content: about) { (msg, error) in
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 semaphore.signal()
             }
             semaphore.wait()
@@ -102,7 +105,7 @@ class DoneOnboardingStep: OnboardingStep {
         let completionOperation = BlockOperation { [weak self] in
             DispatchQueue.main.async { [weak self] in
                 self?.view.lookReady()
-                Analytics.shared.trackOnboardingComplete(data)
+                Analytics.shared.trackOnboardingComplete(data.analytics)
                 self?.next()
             }
         }

@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class PreviewSettingsViewController: DebugTableViewController {
 
@@ -23,7 +27,7 @@ class PreviewSettingsViewController: DebugTableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Advanced Settings")
+        Monitor.shared.record("Did Show Advanced Settings")
         Analytics.shared.trackDidShowScreen(screenName: "advanced_settings")
     }
 
@@ -45,9 +49,9 @@ class PreviewSettingsViewController: DebugTableViewController {
                                              valueClosure:
             {
                 cell in
-                guard let identity = Bots.current.identity else { return }
+                guard let identity = Bot.shared.identity else { return }
                 cell.showActivityIndicator()
-                Bots.current.blocks(identity: identity) {
+                Bot.shared.blocks(identity: identity) {
                     identities, error in
                     cell.hideActivityIndicator(andShow: .disclosureIndicator)
                     cell.detailTextLabel?.text = "\(identities.count)"
@@ -113,8 +117,8 @@ class PreviewSettingsViewController: DebugTableViewController {
 
     private func didError(_ error: OffboardingError?) -> Bool {
         guard let error = error else { return false }
-        CrashReporting.shared.reportIfNeeded(error: error)
-        Log.optional(error)
+        Monitor.shared.reportIfNeeded(error: error)
+        Logger.shared.optional(error)
         switch error {
             case .apiError:
                 self.confirmTryAgain(message: Text.Offboarding.resetApiErrorTryAgain.text)

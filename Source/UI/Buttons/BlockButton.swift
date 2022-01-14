@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Analytics
+import Logger
+import Monitor
+import Bot
 
 class BlockButton: PillButton {
 
@@ -46,7 +50,7 @@ class BlockButton: PillButton {
             assertionFailure("button action was called, but no relationship is setup yet.")
             return
         }
-        
+
         Analytics.shared.trackDidTapButton(buttonName: "block")
 
         let shouldBlock = !self.isSelected
@@ -62,9 +66,9 @@ class BlockButton: PillButton {
         self.isEnabled = false
 
         if shouldBlock {
-            Bots.current.block(relationship.other) { _, error in
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+            Bot.shared.block(relationship.other) { _, error in
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 
                 if error != nil {
                     Analytics.shared.trackDidBlockIdentity()
@@ -73,9 +77,9 @@ class BlockButton: PillButton {
                 complete()
             }
         } else {
-            Bots.current.unblock(relationship.other) { _, error in
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+            Bot.shared.unblock(relationship.other) { _, error in
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 
                 if error != nil {
                     Analytics.shared.trackDidUnblockIdentity()

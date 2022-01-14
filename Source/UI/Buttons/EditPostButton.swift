@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Analytics
+import Bot
 
 class EditPostButton: IconButton {
     let post: KeyValue
@@ -27,22 +29,29 @@ class EditPostButton: IconButton {
         }
         
         let share = UIAlertAction(title: Text.shareThisMessage.text, style: .default) { [post] _ in
-            guard let publicLink = post.key.publicLink, let me = Bots.current.about else {
+            guard let publicLink = post.key.publicLink else {
                 return
             }
-            let who = me.name ?? me.identity
-            let link = publicLink.absoluteString
-            let postWithoutGallery = post.value.content.post?.text.withoutGallery() ?? ""
-            let what = postWithoutGallery.prefix(280 - who.count - link.count - Text.shareThisMessageText.text.count)
-            let text = Text.shareThisMessageText.text(["who": who,
-                                                       "what": String(what),
-                                                       "link": publicLink.absoluteString])
-            Analytics.shared.trackDidSelectAction(actionName: "share_message")
-            let activityController = UIActivityViewController(activityItems: [text],
-                                                              applicationActivities: nil)
-            AppController.shared.present(activityController, animated: true)
-            if let popOver = activityController.popoverPresentationController {
-                popOver.sourceView = self
+            Bot.shared.about { about, _ in
+                guard let me = about else {
+                    return
+                }
+                let who = me.name ?? me.identity
+                let link = publicLink.absoluteString
+                let postWithoutGallery = post.value.content.post?.text.withoutGallery() ?? ""
+                let what = postWithoutGallery.prefix(280 - who.count - link.count - Text.shareThisMessageText.text.count)
+                let text = Text.shareThisMessageText.text(["who": who,
+                                                           "what": String(what),
+                                                           "link": publicLink.absoluteString])
+                Analytics.shared.trackDidSelectAction(actionName: "share_message")
+                DispatchQueue.main.async {
+                    let activityController = UIActivityViewController(activityItems: [text],
+                                                                      applicationActivities: nil)
+                    AppController.shared.present(activityController, animated: true)
+                    if let popOver = activityController.popoverPresentationController {
+                        popOver.sourceView = self
+                    }
+                }
             }
         }
         

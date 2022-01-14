@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Bot
 
 extension AppDelegate {
     
@@ -18,9 +21,9 @@ extension AppDelegate {
             return false
         }
         
-        Log.info("Incoming URL: \(incomingURL)")
+        Logger.shared.info("Incoming URL: \(incomingURL)")
         if let identifier = Identifier.parse(publicLink: incomingURL) {
-            Log.info("Identifier = \(identifier)")
+            Logger.shared.info("Identifier = \(identifier)")
             switch identifier.sigil {
             case .blob:
                 AppController.shared.pushBlobViewController(for: identifier)
@@ -29,7 +32,7 @@ extension AppDelegate {
             case .feed:
                 AppController.shared.pushViewController(for: .about, with: identifier)
             default:
-                CrashReporting.shared.reportIfNeeded(error: AppError.unexpected)
+                Monitor.shared.reportIfNeeded(error: AppError.unexpected)
                 return false
             }
             return true

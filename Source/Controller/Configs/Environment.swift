@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 enum Environment {
     

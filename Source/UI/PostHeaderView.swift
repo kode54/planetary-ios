@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Analytics
+import Bot
 
 class PostHeaderView: UIView {
 
@@ -92,7 +94,7 @@ class PostHeaderView: UIView {
 
         self.dateLabel.text = keyValue.timestampString
 
-        if let me = Bots.current.identity {
+        if let me = Bot.shared.identity {
             let button: UIButton
             if identity.isCurrentUser {
                 button = EditPostButton(post: keyValue)

@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class NotificationsViewController: ContentViewController {
 
@@ -63,7 +67,7 @@ class NotificationsViewController: ContentViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Notifications")
+        Monitor.shared.record("Did Show Notifications")
         Analytics.shared.trackDidShowScreen(screenName: "notifications")
         AppController.shared.promptForPushNotificationsIfNotDetermined(in: self)
         self.deeregisterDidRefresh()
@@ -77,9 +81,9 @@ class NotificationsViewController: ContentViewController {
     // MARK: Load and refresh
 
     func load(animated: Bool = false) {
-        Bots.current.reports() { [weak self] reports, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.reports() { [weak self] reports, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             self?.removeLoadingAnimation()
             self?.refreshControl.endRefreshing()
             
@@ -96,7 +100,7 @@ class NotificationsViewController: ContentViewController {
             UIApplication.shared.endBackgroundTask(NotificationsViewController.refreshBackgroundTaskIdentifier)
         }
         
-        Log.info("Pull down to refresh triggering a medium refresh")
+        Logger.shared.info("Pull down to refresh triggering a medium refresh")
         let refreshOperation = RefreshOperation()
         refreshOperation.refreshLoad = .medium
         
@@ -110,8 +114,8 @@ class NotificationsViewController: ContentViewController {
         NotificationsViewController.refreshBackgroundTaskIdentifier = taskIdentifier
         
         refreshOperation.completionBlock = { [weak self] in
-            Log.optional(refreshOperation.error)
-            CrashReporting.shared.reportIfNeeded(error: refreshOperation.error)
+            Logger.shared.optional(refreshOperation.error)
+            Monitor.shared.reportIfNeeded(error: refreshOperation.error)
             
             if taskIdentifier != UIBackgroundTaskIdentifier.invalid {
                 UIApplication.shared.endBackgroundTask(taskIdentifier)
@@ -182,7 +186,7 @@ class NotificationsViewController: ContentViewController {
     // old.key != new.key check will always be true, but this is good
     // research on how to background updates and show changes in the UI
 //    func refresh(completion: ((Bool) -> Void)? = nil) {
-//        Bots.current.notifications() {
+//        Bot.shared.notifications() {
 //            [weak self] feed, _ in
             // TODO move to KeyValueDataSource.isOlderThan(feed)
             // TODO assume if different than new?

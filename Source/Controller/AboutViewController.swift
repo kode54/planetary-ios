@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class AboutViewController: ContentViewController {
 
@@ -70,7 +74,7 @@ class AboutViewController: ContentViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show About")
+        Monitor.shared.record("Did Show About")
         Analytics.shared.trackDidShowScreen(screenName: "about")
     }
 
@@ -88,44 +92,50 @@ class AboutViewController: ContentViewController {
     }
 
     private func loadAbout() {
-        Bots.current.about(identity: self.identity) {
-            [weak self] about, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            guard let about = about else { return }
-            self?.about = about
-            self?.update(with: about)
+        Bot.shared.about(identity: self.identity) { [weak self] about, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                guard let about = about else { return }
+                self?.about = about
+                self?.update(with: about)
+            }
         }
     }
 
     private func loadFeed() {
-        Bots.current.feed(identity: self.identity) {
-            [weak self] src, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            guard error == nil else {
-                return
+        Bot.shared.feed(identity: self.identity) { [weak self] src, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                guard error == nil else {
+                    return
+                }
+                self?.dataSource.update(source: src)
+                self?.tableView.forceReload()
             }
-            self?.dataSource.update(source: src)
-            self?.tableView.forceReload()
         }
     }
 
     private func loadFollows() {
-        Bots.current.followings(identity: self.identity) { [weak self] (abouts: [About], error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            self?.followings = abouts
-            self?.updateFollows()
+        Bot.shared.followings(identity: self.identity) { [weak self] (abouts: [About], error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                self?.followings = abouts
+                self?.updateFollows()
+            }
         }
     }
 
     private func loadFollowedBy() {
-        Bots.current.followers(identity: self.identity) { [weak self] (abouts: [About], error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            self?.followers = abouts
-            self?.updateFollows()
+        Bot.shared.followers(identity: self.identity) { [weak self] (abouts: [About], error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                self?.followers = abouts
+                self?.updateFollows()
+            }
         }
     }
 
@@ -241,9 +251,9 @@ class AboutViewController: ContentViewController {
     private func publishProfilePhoto(_ uiimage: UIImage, completionHandler: @escaping () -> Void) {
         //AppController.shared.showProgress()
 
-        Bots.current.addBlob(jpegOf: uiimage, largestDimension: 1000) { [weak self] image, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.addBlob(jpegOf: uiimage, largestDimension: 1000) { [weak self] image, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             if let error = error {
                 AppController.shared.hideProgress()
                 self?.alert(error: error)
@@ -252,31 +262,35 @@ class AboutViewController: ContentViewController {
                     // I don't see why this should ever happen
                     // But will leave as it is
                     let error = AppError.unexpected
-                    Log.optional(error)
-                    CrashReporting.shared.reportIfNeeded(error: error)
+                    Logger.shared.optional(error)
+                    Monitor.shared.reportIfNeeded(error: error)
                     AppController.shared.hideProgress()
                     return
                 }
-                Bots.current.publish(content: about) { _, error in
-                    Log.optional(error)
-                    CrashReporting.shared.reportIfNeeded(error: error)
+                Bot.shared.publish(content: about) { _, error in
+                    Logger.shared.optional(error)
+                    Monitor.shared.reportIfNeeded(error: error)
                     if let error = error {
-                        AppController.shared.hideProgress()
-                        self?.alert(error: error)
+                        DispatchQueue.main.async {
+                            AppController.shared.hideProgress()
+                            self?.alert(error: error)
+                        }
                     } else {
                         Analytics.shared.trackDidUpdateAvatar()
-                        Bots.current.about { (newAbout, error) in
-                            Log.optional(error)
-                            CrashReporting.shared.reportIfNeeded(error: error)
-                            
-                            AppController.shared.hideProgress()
-                            
-                            if let newAbout = newAbout {
-                                NotificationCenter.default.post(Notification.didUpdateAbout(newAbout))
+                        Bot.shared.about { (newAbout, error) in
+                            Logger.shared.optional(error)
+                            Monitor.shared.reportIfNeeded(error: error)
+
+                            DispatchQueue.main.async {
+                                AppController.shared.hideProgress()
+
+                                if let newAbout = newAbout {
+                                    NotificationCenter.default.post(Notification.didUpdateAbout(newAbout))
+                                }
+
+                                self?.aboutView.imageView.fade(to: uiimage)
+                                completionHandler()
                             }
-                            
-                            self?.aboutView.imageView.fade(to: uiimage)
-                            completionHandler()
                         }
                     }
                 }
@@ -292,23 +306,27 @@ class AboutViewController: ContentViewController {
         controller.saveCompletion = {
             [weak self] _ in
             //AppController.shared.showProgress()
-            Bots.current.publish(content: controller.about) { [weak self] (_, error) in
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+            Bot.shared.publish(content: controller.about) { [weak self] (_, error) in
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 if let error = error {
-                    AppController.shared.hideProgress()
-                    self?.alert(error: error)
+                    DispatchQueue.main.async {
+                        AppController.shared.hideProgress()
+                        self?.alert(error: error)
+                    }
                 } else {
                     Analytics.shared.trackDidUpdateProfile()
-                    Bots.current.about { (newAbout, error) in
-                        Log.optional(error)
-                        CrashReporting.shared.reportIfNeeded(error: error)
-                        AppController.shared.hideProgress()
-                        if let newAbout = newAbout {
-                            NotificationCenter.default.post(Notification.didUpdateAbout(newAbout))
-                            self?.update(with: controller.about)
+                    Bot.shared.about { (newAbout, error) in
+                        Logger.shared.optional(error)
+                        Monitor.shared.reportIfNeeded(error: error)
+                        DispatchQueue.main.async {
+                            AppController.shared.hideProgress()
+                            if let newAbout = newAbout {
+                                NotificationCenter.default.post(Notification.didUpdateAbout(newAbout))
+                                self?.update(with: controller.about)
+                            }
+                            self?.dismiss(animated: true)
                         }
-                        self?.dismiss(animated: true)
                     }
                 }
             }
@@ -376,7 +394,7 @@ class AboutViewController: ContentViewController {
     }
 
     private func didSelectReportAction(action: UIAlertAction) {
-        guard let about = self.about, let name = about.name, let me = Bots.current.identity else {
+        guard let about = self.about, let name = about.name, let me = Bot.shared.identity else {
             return
         }
         Analytics.shared.trackDidSelectAction(actionName: "report_user")

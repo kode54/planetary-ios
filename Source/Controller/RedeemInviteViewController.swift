@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
 
 class RedeemInviteViewController: UIViewController, Saveable, SaveableDelegate, UITextViewDelegate {
     
@@ -106,8 +108,8 @@ class RedeemInviteViewController: UIViewController, Saveable, SaveableDelegate, 
                     }
                 }
             case .failure(let error):
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 DispatchQueue.main.async {
                     AppController.shared.hideProgress()
                     self?.alert(error: error)

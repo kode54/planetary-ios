@@ -8,6 +8,7 @@
 
 import Foundation
 import Keys
+import Logger
 
 class AuthyPhoneVerificationAPI: PhoneVerificationAPIService {
     
@@ -68,7 +69,7 @@ extension AuthyPhoneVerificationAPI: API {
             data, response, error in
             let apiError = response?.httpStatusCodeError ?? APIError.optional(error)
             DispatchQueue.main.async { completion(data, apiError) }
-            Log.optional(apiError, from: response)
+            Logger.shared.optional(apiError)
         }.resume()
     }
     

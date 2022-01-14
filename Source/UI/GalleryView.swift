@@ -9,6 +9,7 @@
 import Foundation
 import ImageSlideshow
 import UIKit
+import Bot
 
 class GalleryView: UIView, KeyValueUpdateable {
 

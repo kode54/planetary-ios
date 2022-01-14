@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 // TODO should these be declared inside Onboarding?
 // TODO or should the completions be generic?
@@ -42,13 +43,15 @@ extension Onboarding {
     static func invitePubsToFollow(_ identity: Identity,
                                   completion: @escaping ((Bool, Error?) -> Void))
     {
-        guard identity.isValidIdentifier else {
-            completion(false, OnboardingError.invalidIdentity(identity));
-            return
-        }
-        // TODO: this code is not run during APITests but should be called in test40_invite_pubs https://app.asana.com/0/0/1134329918920786/f
-        PubAPI.shared.invitePubsToFollow(identity) { success, error in
-            completion(success, error)
-        }
+//        guard identity.isValidIdentifier else {
+//            completion(false, OnboardingError.invalidIdentity(identity));
+//            return
+//        }
+//        // TODO: this code is not run during APITests but should be called in test40_invite_pubs https://app.asana.com/0/0/1134329918920786/f
+//        PubAPI.shared.invitePubsToFollow(identity) { success, error in
+//            completion(success, error)
+//        }
+        // TODO: We don't use this API anymore
+        completion(true, nil)
     }
 }

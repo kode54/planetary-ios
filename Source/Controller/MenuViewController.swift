@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Monitor
+import Analytics
+import Bot
 
 class MenuViewController: UIViewController {
 
@@ -61,14 +64,21 @@ class MenuViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Menu")
+        Monitor.shared.record("Did Show Menu")
         Analytics.shared.trackDidShowScreen(screenName: "menu")
     }
 
     private func load() {
-        guard let about = Bots.current.about else { return }
-        self.menuView.profileView.update(with: about)
-        self.menuView.label.text = about.nameOrIdentity
+        Bot.shared.about { about, _ in
+            guard let me = about else {
+                return
+            }
+            DispatchQueue.main.async {
+                self.menuView.profileView.update(with: me)
+                self.menuView.label.text = me.nameOrIdentity
+            }
+        }
+
     }
 
     // MARK: Actions
@@ -88,14 +98,14 @@ class MenuViewController: UIViewController {
 
     @objc private func profileViewTouchUpInside() {
         Analytics.shared.trackDidTapButton(buttonName: "profile")
-        guard let identity = Bots.current.identity else { return }
+        guard let identity = Bot.shared.identity else { return }
         AppController.shared.pushViewController(for: .about, with: identity)
         self.close()
     }
     
     @objc private func profileButtonTouchUpInside() {
         Analytics.shared.trackDidTapButton(buttonName: "your_profile")
-        guard let identity = Bots.current.identity else { return }
+        guard let identity = Bot.shared.identity else { return }
         AppController.shared.pushViewController(for: .about, with: identity)
         self.close()
     }
@@ -123,7 +133,7 @@ class MenuViewController: UIViewController {
 
     @objc private func reportBugButtonTouchUpInside() {
         Analytics.shared.trackDidTapButton(buttonName: "report_bug")
-        guard let controller = Support.shared.myTicketsViewController(from: Bots.current.identity) else {
+        guard let controller = Support.shared.myTicketsViewController(from: Bot.shared.identity) else {
             AppController.shared.alert(style: .alert,
                                        title: Text.error.text,
                                        message: Text.Error.supportNotConfigured.text,

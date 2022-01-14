@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 class AboutCellView: UIView {
 
@@ -108,7 +109,7 @@ class AboutCellView: UIView {
     }
 
     func setRelationship(to identity: Identity) {
-        if let me = Bots.current.identity {
+        if let me = Bot.shared.identity {
             let relationship = Relationship(from: me, to: identity)
 
             relationship.load {

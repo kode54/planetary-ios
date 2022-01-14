@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 class AboutView: KeyValueView {
 
@@ -229,7 +230,7 @@ class AboutView: KeyValueView {
 
     // do this once, so we only have one notification
     private func createRelationship(identity: Identity) {
-        guard relationship == nil, let me = Bots.current.identity else { return }
+        guard relationship == nil, let me = Bot.shared.identity else { return }
 
         let relationship = Relationship(from: me, to: identity)
 

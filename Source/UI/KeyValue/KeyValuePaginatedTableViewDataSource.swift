@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import Bot
 
 // wild copy pasta from the PostView table datasource
 // this implements prefetching using a proxy

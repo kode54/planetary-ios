@@ -7,6 +7,10 @@
 //
 
 import Foundation
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class RefreshOperation: AsynchronousOperation {
 
@@ -19,25 +23,23 @@ class RefreshOperation: AsynchronousOperation {
     }
     
     override func main() {
-        Log.info("RefreshOperation started.")
+        Logger.shared.info("RefreshOperation started.")
         
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. RefreshOperation finished.")
+            Logger.shared.info("Not logged in. RefreshOperation finished.")
             self.error = BotError.notLoggedIn
             self.finish()
             return
         }
         
-        Analytics.shared.trackBotRefresh()
-        let queue = OperationQueue.current?.underlyingQueue ?? DispatchQueue.global(qos: .background)
-        Bots.current.refresh(load: refreshLoad, queue: queue) { [weak self, refreshLoad] (error, timeInterval) in
-            Analytics.shared.trackBotDidRefresh(load: refreshLoad, duration: timeInterval, error: error)
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.refresh(load: refreshLoad) { [weak self, refreshLoad] (error, timeInterval) in
+            Analytics.shared.trackBotDidRefresh(load: refreshLoad.rawValue, duration: timeInterval, error: error)
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             
-            Log.info("RefreshOperation finished. Took \(timeInterval) seconds to refresh.")
+            Logger.shared.info("RefreshOperation finished. Took \(timeInterval) seconds to refresh.")
             if let strongSelf = self, !strongSelf.isCancelled {
                 self?.error = error
             }

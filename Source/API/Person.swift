@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 struct Person: Codable, Equatable {
 

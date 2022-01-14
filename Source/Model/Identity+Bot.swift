@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import Bot
 
 extension Identity {
     var isCurrentUser: Bool {
-        return self == Bots.current.identity
+        return self == Bot.shared.identity
     }
 
     // a safety to help avoid passing in the current user's identity into an API call

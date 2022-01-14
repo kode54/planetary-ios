@@ -7,6 +7,9 @@
 //
 
 import Foundation
+import Logger
+import Monitor
+import Bot
 
 class UnfollowOperation: AsynchronousOperation {
 
@@ -19,22 +22,22 @@ class UnfollowOperation: AsynchronousOperation {
     }
     
     override func main() {
-        Log.info("UnfollowOperation started.")
+        Logger.shared.info("UnfollowOperation started.")
         
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. UnfollowOperation finished.")
+            Logger.shared.info("Not logged in. UnfollowOperation finished.")
             self.error = BotError.notLoggedIn
             self.finish()
             return
         }
-        
-        Bots.current.unfollow(self.identity) { [weak self] (contact, error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+
+        Bot.shared.unfollow(self.identity) { [weak self] (contact, error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             self?.error = error
-            Log.info("UnfollowOperation finished.")
+            Logger.shared.info("UnfollowOperation finished.")
             self?.finish()
         }
     }

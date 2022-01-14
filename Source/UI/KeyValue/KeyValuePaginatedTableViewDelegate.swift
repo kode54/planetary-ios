@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 class KeyValuePaginatedTableViewDelegate: NSObject, UITableViewDelegate {
     

@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Analytics
+import Monitor
+import Bot
 
 class ChannelsViewController: ContentViewController {
     
@@ -53,7 +57,7 @@ class ChannelsViewController: ContentViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Channels")
+        Monitor.shared.record("Did Show Channels")
         Analytics.shared.trackDidShowScreen(screenName: "channels")
         self.deeregisterDidRefresh()
     }
@@ -66,17 +70,18 @@ class ChannelsViewController: ContentViewController {
     // MARK: Load and refresh
 
     private func load(animated: Bool = false) {
-        Bots.current.hashtags() {
-            [weak self] hashtags, error in
-            CrashReporting.shared.reportIfNeeded(error: error)
-            Log.optional(error)
-            self?.removeLoadingAnimation()
-            self?.refreshControl.endRefreshing()
-            
-            if let error = error {
-                self?.alert(error: error)
-            } else {
-                self?.update(with: hashtags, animated: animated)
+        Bot.shared.hashtags() { [weak self] hashtags, error in
+            Monitor.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
+            DispatchQueue.main.async {
+                self?.removeLoadingAnimation()
+                self?.refreshControl.endRefreshing()
+
+                if let error = error {
+                    self?.alert(error: error)
+                } else {
+                    self?.update(with: hashtags, animated: animated)
+                }
             }
         }
     }
@@ -86,7 +91,7 @@ class ChannelsViewController: ContentViewController {
             UIApplication.shared.endBackgroundTask(ChannelsViewController.refreshBackgroundTaskIdentifier)
         }
         
-        Log.info("Pull down to refresh triggering a medium refresh")
+        Logger.shared.info("Pull down to refresh triggering a medium refresh")
         let refreshOperation = RefreshOperation()
         refreshOperation.refreshLoad = .medium
         
@@ -100,8 +105,8 @@ class ChannelsViewController: ContentViewController {
         ChannelsViewController.refreshBackgroundTaskIdentifier = taskIdentifier
         
         refreshOperation.completionBlock = { [weak self] in
-            Log.optional(refreshOperation.error)
-            CrashReporting.shared.reportIfNeeded(error: refreshOperation.error)
+            Logger.shared.optional(refreshOperation.error)
+            Monitor.shared.reportIfNeeded(error: refreshOperation.error)
             
             if taskIdentifier != UIBackgroundTaskIdentifier.invalid {
                 UIApplication.shared.endBackgroundTask(taskIdentifier)

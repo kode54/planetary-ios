@@ -7,6 +7,10 @@
 //
 
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 class DirectoryViewController: ContentViewController, AboutTableViewDelegate {
 
@@ -82,17 +86,18 @@ class DirectoryViewController: ContentViewController, AboutTableViewDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Directory")
+        Monitor.shared.record("Did Show Directory")
         Analytics.shared.trackDidShowScreen(screenName: "directory")
     }
 
     private func load(completion: @escaping () -> Void) {
-        Bots.current.abouts() {
-            [weak self] abouts, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
-            self?.allPeople = abouts
-            completion()
+        Bot.shared.abouts() { [weak self] abouts, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            DispatchQueue.main.async {
+                self?.allPeople = abouts
+                completion()
+            }
         }
         
     }

@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import Bot
 
 class PeersView: UIView {
 
@@ -192,7 +193,7 @@ class PeersView: UIView {
             return self.format(date: lastSyncDate)
         } else {
             do {
-                let timestamp = try Bots.current.lastReceivedTimestam()
+                let timestamp = try Bot.shared.lastReceivedTimestam()
                 let miliseconds = timestamp/1000
                 return self.format(date: Date(timeIntervalSince1970: miliseconds))
             } catch {

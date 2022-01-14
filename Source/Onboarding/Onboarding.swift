@@ -7,6 +7,11 @@
 //
 
 import Foundation
+import Logger
+import Monitor
+import Analytics
+import Bot
+import SSB
 
 enum OnboardingError: Error {
 
@@ -82,14 +87,14 @@ class Onboarding {
         // guard phone.isValidPhoneNumber else { completion(nil, .invalidPhoneNumber); return }
         
         guard name.isValidName else { completion(nil, .invalidName); return }
-        guard Bots.current.identity == nil else { completion(nil, .cannotOnboardWhileLoggedIn); return }
+        guard Bot.shared.identity == nil else { completion(nil, .cannotOnboardWhileLoggedIn); return }
 
         Analytics.shared.trackOnboardingStart()
 
         // create secret
-        GoBot.shared.createSecret() { secret, error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.createSecret() { secret, error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             
             guard let secret = secret else {
                 completion(nil, .secretFailed(error))
@@ -114,8 +119,8 @@ class Onboarding {
             var context = Context(from: configuration)!
             
             context.bot.login(network: configuration.network!, hmacKey: configuration.hmacKey, secret: secret) { error in
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 
                 if let error = error {
                     completion(nil, .botError(error));
@@ -125,15 +130,21 @@ class Onboarding {
                 // publish about
                 let about = About(about: secret.identity, name: name)
                 context.bot.publish(content: about) { _, error in
-                    Log.optional(error)
-                    CrashReporting.shared.reportIfNeeded(error: error)
+                    Logger.shared.optional(error)
+                    Monitor.shared.reportIfNeeded(error: error)
                     if let error = error {
                         completion(nil, .botError(error));
                         return
                     }
 
-                    CrashReporting.shared.identify(about: about, network: configuration.network!)
-                    Analytics.shared.identify(about: about, network: configuration.network!)
+                    Monitor.shared.identify(identifier: about.identity,
+                                            name: about.name,
+                                            networkKey: configuration.network!.string,
+                                            networkName: configuration.network!.name)
+
+                    Analytics.shared.identify(identifier: about.identity,
+                                              name: about.name,
+                                              network: configuration.network!.name)
                     
                     // done
                     context.about = about
@@ -165,9 +176,9 @@ class Onboarding {
     /// should not have been set.  Check out `Onboarding.start()` to see all the work that is
     /// done, and to use a template to know what work to undo.
     static func reset(completion: @escaping ResetCompletion) {
-        Bots.current.logout() { error in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.logout() { error in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             
             Analytics.shared.forget()
             
@@ -192,7 +203,7 @@ class Onboarding {
             return
         }
 
-        Bots.current.login(network: context.network,
+        Bot.shared.login(network: context.network,
                            hmacKey: context.signingKey,
                            secret: secret)
         {
@@ -200,7 +211,7 @@ class Onboarding {
             if let error = error { completion(context, .botError(error)) }
 
             // get About for context identity
-            Bots.current.about(identity: context.identity) {
+            Bot.shared.about(identity: context.identity) {
                 about, error in
                 guard let about = about else {
                     // Known case, pub api call failed in previous onboarding
@@ -209,8 +220,14 @@ class Onboarding {
                 }
                 context.about = about
                 
-                CrashReporting.shared.identify(about: about, network: context.network)
-                Analytics.shared.identify(about: about, network: context.network)
+                Monitor.shared.identify(identifier: about.identity,
+                                        name: about.name,
+                                        networkKey: configuration.network!.string,
+                                        networkName: configuration.network!.name)
+
+                Analytics.shared.identify(identifier: about.identity,
+                                          name: about.name,
+                                          network: configuration.network!.name)
 
                 completion(context, nil)
             }

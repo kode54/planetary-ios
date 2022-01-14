@@ -7,52 +7,55 @@
 //
 
 import Foundation
+import Logger
+import Analytics
+import Bot
 
 class StatisticsOperation: AsynchronousOperation {
 
-    private(set) var result: Result<BotStatistics, Error> = .failure(AppError.unexpected)
+    private(set) var result: Result<Statistics, Error> = .failure(AppError.unexpected)
 
     override func main() {
-        Log.info("RefreshOperation started.")
+        Logger.shared.info("RefreshOperation started.")
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. RefreshOperation finished.")
+            Logger.shared.info("Not logged in. RefreshOperation finished.")
             self.result = .failure(BotError.notLoggedIn)
             self.finish()
             return
         }
-        let queue = OperationQueue.current?.underlyingQueue ?? DispatchQueue.global(qos: .background)
-        Bots.current.statistics(queue: queue) { [weak self] statistics in
-            Log.info("StatisticsOperation finished.")
+        Bot.shared.statistics { [weak self] statistics in
+            Logger.shared.info("StatisticsOperation finished.")
             if let lastSyncDate = statistics.lastSyncDate {
                 let minutesSinceLastSync = floor(lastSyncDate.timeIntervalSinceNow / 60)
-                Log.debug("Last sync: \(minutesSinceLastSync) minutes ago")
+                Logger.shared.debug("Last sync: \(minutesSinceLastSync) minutes ago")
             }
             if let lastRefreshDate = statistics.lastRefreshDate {
                 let minutesSinceLastRefresh = floor(lastRefreshDate.timeIntervalSinceNow / 60)
-                Log.debug("Last refresh: \(minutesSinceLastRefresh) minutes ago")
+                Logger.shared.debug("Last refresh: \(minutesSinceLastRefresh) minutes ago")
             }
             if statistics.repo.feedCount != -1 {
-                Log.debug("Feed count: \(statistics.repo.feedCount)")
-                Log.debug("Message count: \(statistics.repo.messageCount)")
-                Log.debug("Published message count: \(statistics.repo.numberOfPublishedMessages)")
+                Logger.shared.debug("Feed count: \(statistics.repo.feedCount)")
+                Logger.shared.debug("Message count: \(statistics.repo.messageCount)")
+                Logger.shared.debug("Published message count: \(statistics.repo.numberOfPublishedMessages)")
             }
             if statistics.db.lastReceivedMessage != -3 {
                 let lastRxSeq = statistics.db.lastReceivedMessage
-                Log.debug("Last received message: \(lastRxSeq)")
+                Logger.shared.debug("Last received message: \(lastRxSeq)")
                 if statistics.repo.feedCount != -1 {
                     let diff = statistics.repo.messageCount - 1 - lastRxSeq
-                    Log.debug("Message diff: \(diff)")
+                    Logger.shared.debug("Message diff: \(diff)")
                 }
             }
-            Log.debug("Peers: \(statistics.peer.count)")
-            Log.debug("Connected peers: \(statistics.peer.connectionCount)")
-            Analytics.shared.identify(statistics: statistics)
-            Analytics.shared.trackBotDidStats(statistics: statistics)
+            Logger.shared.debug("Peers: \(statistics.peer.count)")
+            Logger.shared.debug("Connected peers: \(statistics.peer.connectionCount)")
+            // TODO: Implement this again
+            //Analytics.shared.identify(statistics: statistics)
+            //Analytics.shared.trackBotDidStats(statistics: statistics)
             let currentNumberOfPublishedMessages = statistics.repo.numberOfPublishedMessages
             if let configuration = AppConfiguration.current,
-                let botIdentity = Bots.current.identity,
+                let botIdentity = Bot.shared.identity,
                 let configIdentity = configuration.identity,
                 botIdentity == configIdentity,
                 currentNumberOfPublishedMessages > -1,

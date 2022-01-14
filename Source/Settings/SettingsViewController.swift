@@ -8,6 +8,10 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
+import Bot
 
 // It turns out that DebugTableViewController works really well
 // for the design of the settings, so we're just gonna use it for now.
@@ -21,7 +25,7 @@ class SettingsViewController: DebugTableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Settings")
+        Monitor.shared.record("Did Show Settings")
         Analytics.shared.trackDidShowScreen(screenName: "settings")
     }
 
@@ -47,7 +51,7 @@ class SettingsViewController: DebugTableViewController {
     private func publicWebHosting() -> DebugTableViewController.Settings {
         let valueClosure = { (_ cell: UITableViewCell) -> Void in
             cell.showActivityIndicator()
-            Bots.current.about { [weak self] (about, error) in
+            Bot.shared.about { [weak self] (about, error) in
                 cell.hideActivityIndicator()
                 let isPublicWebHostingEnabled = about?.publicWebHosting ?? false
                 self?.publicWebHostingToggle.isOn = isPublicWebHostingEnabled
@@ -66,18 +70,18 @@ class SettingsViewController: DebugTableViewController {
     @objc private func publicWebHostingToggleValueChanged(toggle: UISwitch) {
         let isPublicWebHostingEnabled = toggle.isOn
         //AppController.shared.showProgress()
-        Bots.current.about { [weak self] (about, error) in
+        Bot.shared.about { [weak self] (about, error) in
             if let error = error {
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 AppController.shared.hideProgress()
                 toggle.isOn = !isPublicWebHostingEnabled
                 self?.alert(error: error)
             } else if let about = about {
                 let newAbout = about.mutatedCopy(publicWebHosting: isPublicWebHostingEnabled)
-                Bots.current.publish(content: newAbout) { (_, error) in
-                    Log.optional(error)
-                    CrashReporting.shared.reportIfNeeded(error: error)
+                Bot.shared.publish(content: newAbout) { (_, error) in
+                    Logger.shared.optional(error)
+                    Monitor.shared.reportIfNeeded(error: error)
 
                     AppController.shared.hideProgress()
                     if let error = error {
@@ -87,8 +91,8 @@ class SettingsViewController: DebugTableViewController {
                 }
             } else {
                 let error = AppError.unexpected
-                Log.optional(error)
-                CrashReporting.shared.reportIfNeeded(error: error)
+                Logger.shared.optional(error)
+                Monitor.shared.reportIfNeeded(error: error)
                 AppController.shared.hideProgress()
                 toggle.isOn = !isPublicWebHostingEnabled
                 self?.alert(error: error)

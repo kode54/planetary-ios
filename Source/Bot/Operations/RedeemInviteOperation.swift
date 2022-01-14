@@ -7,6 +7,9 @@
 //
 
 import Foundation
+import Logger
+import Monitor
+import Bot
 
 class RedeemInviteOperation: AsynchronousOperation {
 
@@ -26,52 +29,51 @@ class RedeemInviteOperation: AsynchronousOperation {
     }
     
     override func main() {
-        Log.info("RedeemInviteOperation started.")
+        Logger.shared.info("RedeemInviteOperation started.")
         let configuredIdentity = AppConfiguration.current?.identity
-        let loggedInIdentity = Bots.current.identity
+        let loggedInIdentity = Bot.shared.identity
         guard loggedInIdentity != nil, loggedInIdentity == configuredIdentity else {
-            Log.info("Not logged in. RedeemInviteOperation finished.")
+            Logger.shared.info("Not logged in. RedeemInviteOperation finished.")
             self.result = .failure(BotError.notLoggedIn)
             self.finish()
             return
         }
-        Log.debug("Redeeming invite to star \(self.star.feed)...")
-        let queue = OperationQueue.current?.underlyingQueue ?? DispatchQueue.global(qos: .background)
-        Bots.current.inviteRedeem(queue: queue, token: self.star.invite) { [weak self, star, shouldFollow] (error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Logger.shared.debug("Redeeming invite to star \(self.star.feed)...")
+        Bot.shared.inviteRedeem(token: self.star.invite) { [weak self, star, shouldFollow] (error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             if let error = error {
-                Log.info("RedeemInviteOperation to \(star.feed) finished with error \(error).")
+                Logger.shared.info("RedeemInviteOperation to \(star.feed) finished with error \(error).")
                 self?.result = .failure(error)
                 self?.finish()
             } else {
-                Log.debug("Publishing Pub (\(star.feed)) message...")
+                Logger.shared.debug("Publishing Pub (\(star.feed)) message...")
                 let pub = star.toPub()
-                Bots.current.publish(content: pub) { (_, error) in
-                    Log.optional(error)
-                    CrashReporting.shared.reportIfNeeded(error: error)
+                Bot.shared.publish(content: pub) { (_, error) in
+                    Logger.shared.optional(error)
+                    Monitor.shared.reportIfNeeded(error: error)
                     if let error = error {
-                        Log.info("Publishing Pub \(star.feed) message finished with error \(error).")
+                        Logger.shared.info("Publishing Pub \(star.feed) message finished with error \(error).")
                         // We don't care the result, move on
                     }
                     if shouldFollow {
-                        Log.debug("Publishing Contact (\(star.feed)) message...")
+                        Logger.shared.debug("Publishing Contact (\(star.feed)) message...")
                         let contact = Contact(contact: star.feed, following: true)
-                        Bots.current.publish(content: contact) { (_, error) in
-                            Log.optional(error)
-                            CrashReporting.shared.reportIfNeeded(error: error)
+                        Bot.shared.publish(content: contact) { (_, error) in
+                            Logger.shared.optional(error)
+                            Monitor.shared.reportIfNeeded(error: error)
                             if let error = error {
-                                Log.info("RedeemInviteOperation to \(star.feed) finished with error \(error).")
+                                Logger.shared.info("RedeemInviteOperation to \(star.feed) finished with error \(error).")
                                 self?.result = .failure(error)
                                 self?.finish()
                             } else {
-                                Log.info("RedeemInviteOperation to \(star.feed) finished.")
+                                Logger.shared.info("RedeemInviteOperation to \(star.feed) finished.")
                                 self?.result = .success(())
                                 self?.finish()
                             }
                         }
                     } else {
-                        Log.info("RedeemInviteOperation to \(star.feed) finished.")
+                        Logger.shared.info("RedeemInviteOperation to \(star.feed) finished.")
                         self?.result = .success(())
                         self?.finish()
                     }

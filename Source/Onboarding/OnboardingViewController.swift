@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
+import Analytics
 
 class OnboardingViewController: UINavigationController, OnboardingStepDelegate {
 
@@ -58,7 +61,7 @@ class OnboardingViewController: UINavigationController, OnboardingStepDelegate {
         super.init(nibName: nil, bundle: nil)
 
         self.stepData.simulated = simulate
-        if simulate { Log.info("SIMULATING ONBOARDING") }
+        if simulate { Logger.shared.info("SIMULATING ONBOARDING") }
 
         self.steps = status == .started ? self.resumeSteps : self.startSteps
         self.pushViewController(for: self.steps[0], animated: false)
@@ -76,7 +79,7 @@ class OnboardingViewController: UINavigationController, OnboardingStepDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Onboarding")
+        Monitor.shared.record("Did Show Onboarding")
         Analytics.shared.trackDidShowScreen(screenName: "onboarding")
         self.forceNavigationControllerDelegateDidShowViewController()
     }

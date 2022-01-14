@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Bot
+import SSB
 
 struct Star {
     let invite: String
@@ -19,8 +21,8 @@ struct Star {
         return "\(host):\(port)"
     }
     
-    var address: PubAddress {
-        return PubAddress(key: self.feed, host: self.host, port: self.port)
+    var address: Pub.Address {
+        return Pub.Address(key: self.feed, host: self.host, port: self.port)
     }
     
     init(invite: String) {
@@ -60,7 +62,7 @@ struct Star {
     }
     
     func toPeer() -> Peer {
-        return Peer(tcpAddr: self.tcpAddress, pubKey: self.feed)
+        return Peer(key: Key(self.feed), tcpAddr: self.tcpAddress)
     }
     
     func toPub() -> Pub {

@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import Logger
+import Monitor
+import Analytics
 
 class FollowButton: PillButton {
 
@@ -74,8 +77,8 @@ class FollowButton: PillButton {
                             self.onUpdate?(shouldFollow)
                         }
                     case .failure(let error):
-                        Log.optional(error)
-                        CrashReporting.shared.reportIfNeeded(error: error)
+                        Logger.shared.optional(error)
+                        Monitor.shared.reportIfNeeded(error: error)
                         DispatchQueue.main.async {
                             AppController.shared.hideProgress()
                             self.isEnabled = true
@@ -89,8 +92,8 @@ class FollowButton: PillButton {
                 let operation = FollowOperation(identity: relationship.other)
                 operation.completionBlock = {
                     if let error = operation.error {
-                        Log.optional(error)
-                        CrashReporting.shared.reportIfNeeded(error: error)
+                        Logger.shared.optional(error)
+                        Monitor.shared.reportIfNeeded(error: error)
                         DispatchQueue.main.async {
                             AppController.shared.hideProgress()
                             self.isEnabled = true
@@ -114,8 +117,8 @@ class FollowButton: PillButton {
             let operation = UnfollowOperation(identity: relationship.other)
             operation.completionBlock = {
                 if let error = operation.error {
-                    Log.optional(error)
-                    CrashReporting.shared.reportIfNeeded(error: error)
+                    Logger.shared.optional(error)
+                    Monitor.shared.reportIfNeeded(error: error)
                     DispatchQueue.main.async {
                         AppController.shared.hideProgress()
                         self.isEnabled = true

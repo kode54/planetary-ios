@@ -10,6 +10,10 @@ import Foundation
 import UIKit
 import UserNotifications
 import UserNotificationsUI
+import Logger
+import Analytics
+import Monitor
+import Bot
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
 
@@ -28,7 +32,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                      didFailToRegisterForRemoteNotificationsWithError error: Error)
     {
         guard UIDevice.isSimulator == false else { return }
-        Log.fatal(.apiError, "Could not register for push notifications: \(error)")
+        Logger.shared.fatal(.apiError, "Could not register for push notifications: \(error)")
     }
 
     func application(_ application: UIApplication,
@@ -41,7 +45,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
             return
         }
         
-        Log.info("Handling Remote notification")
+        Logger.shared.info("Handling Remote notification")
         Analytics.shared.trackDidReceiveRemoteNotification()
         self.handleBackgroundFetch(notificationsOnly: true, completionHandler: completionHandler)
     }
@@ -77,8 +81,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         // schedule the notification
         UNUserNotificationCenter.current().add(request) {
             error in
-            CrashReporting.shared.reportIfNeeded(error: error)
-            Log.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
         }
     }
     
@@ -87,9 +91,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func scheduleLocalNotification(_ report: Report) {
         
         
-        Bots.current.about(queue: .global(qos: .background), identity: report.keyValue.value.author) { (about, error) in
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+        Bot.shared.about(identity: report.keyValue.value.author) { (about, error) in
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             
             let content = UNMutableNotificationContent()
             
@@ -123,10 +127,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                                                 trigger: nil)
 
             // schedule the notification
-            UNUserNotificationCenter.current().add(request) {
-                error in
-                CrashReporting.shared.reportIfNeeded(error: error)
-                Log.optional(error)
+            UNUserNotificationCenter.current().add(request) { error in
+                Monitor.shared.reportIfNeeded(error: error)
+                Logger.shared.optional(error)
             }
         }
         
@@ -165,7 +168,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         guard let report = notification.userInfo?["report"] as? Report else {
             return
         }
-        guard let currentIdentity = Bots.current.identity else {
+        guard let currentIdentity = Bot.shared.identity else {
             // Don't do anything if user is not logged in
             return
         }

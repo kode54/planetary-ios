@@ -8,6 +8,8 @@
 
 import Foundation
 import UIKit
+import Logger
+import Monitor
 
 class JoinOnboardingStep: OnboardingStep {
 
@@ -40,8 +42,8 @@ class JoinOnboardingStep: OnboardingStep {
 
         Onboarding.start(birthdate: birthdate, phone: phone, name: name) { [weak self] context, error in
             
-            Log.optional(error)
-            CrashReporting.shared.reportIfNeeded(error: error)
+            Logger.shared.optional(error)
+            Monitor.shared.reportIfNeeded(error: error)
             
             self?.view.lookReady()
             guard let context = context else {

@@ -8,6 +8,9 @@
 
 import Foundation
 import UIKit
+import Monitor
+import Analytics
+import Bot
 
 class ContactsViewController: ContentViewController, AboutTableViewDelegate {
 
@@ -38,7 +41,7 @@ class ContactsViewController: ContentViewController, AboutTableViewDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        CrashReporting.shared.record("Did Show Contacts")
+        Monitor.shared.record("Did Show Contacts")
         Analytics.shared.trackDidShowScreen(screenName: "contacts")
     }
 

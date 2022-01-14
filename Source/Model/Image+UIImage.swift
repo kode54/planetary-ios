@@ -8,14 +8,16 @@
 
 import Foundation
 import UIKit
+import Bot
 
 extension Image {
 
     init(link: BlobIdentifier, jpegImage: UIImage, data: Data) {
-        self.link = link
-        self.width = Int(jpegImage.size.width)
-        self.height = Int(jpegImage.size.height)
-        self.size = data.count
-        self.type = MIMEType.jpeg.rawValue
+        self.init(height: Int(jpegImage.size.height),
+                  link: link,
+                  size: data.count,
+                  type: MIMEType.jpeg.rawValue,
+                  width: Int(jpegImage.size.width))
     }
+    
 }

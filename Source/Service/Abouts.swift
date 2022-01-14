@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Bot
 
 // TODO https://app.asana.com/0/914798787098068/1121081744093372/f
 // this should become part of Caches.mentions.recent
@@ -54,7 +55,7 @@ struct AboutService {
                                      filteredBy string: String?,
                                      completion: @escaping AboutsCompletion)
     {
-        Bots.current.abouts(identities: identities) {
+        Bot.shared.abouts(identities: identities) {
             abouts, error in
             guard let string = string else { completion(abouts.sorted(), error); return }
             guard string.isEmpty == false else { completion(abouts.sorted(), error); return }
@@ -68,7 +69,7 @@ struct AboutService {
         assert(Thread.isMainThread)
 
         // TODO Bot should have a "me" version
-        guard let identity = Bots.current.identity else {
+        guard let identity = Bot.shared.identity else {
             completion([], BotError.notLoggedIn)
             return
         }
@@ -77,13 +78,13 @@ struct AboutService {
         let group = DispatchGroup()
 
         group.enter()
-        Bots.current.follows(identity: identity) { (contacts: [Identity], _) in
+        Bot.shared.follows(identity: identity) { (contacts: [Identity], _) in
             identities = identities.union(Set<Identity>(contacts))
             group.leave()
         }
 
         group.enter()
-        Bots.current.followedBy(identity: identity) {
+        Bot.shared.followedBy(identity: identity) {
             contacts, _ in
             identities = identities.union(Set<Identity>(contacts))
             group.leave()

@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Logger
+import Bot
 
 /// An in-memory cache of `NSAttributedString` generated from
 /// the entire `Post.text` markdown string.  This is suitable for use when
@@ -25,7 +27,7 @@ class PostTextCache: AttributedStringCache {
     }
 
     override func invalidate() {
-        Log.info("Purging with count=\(self.count), estimatedBytes=\(self.estimatedBytes)")
+        Logger.shared.info("Purging with count=\(self.count), estimatedBytes=\(self.estimatedBytes)")
         super.invalidate()
     }
 }
