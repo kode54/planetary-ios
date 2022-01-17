@@ -9,6 +9,8 @@
 import Foundation
 import XCTest
 
+import Bot
+
 class MarkdownTests: XCTestCase {
     
     func test_attributedStringToMarkdown() {

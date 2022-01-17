@@ -8,6 +8,8 @@
 
 import KeychainSwift
 import XCTest
+import Bot
+import SSB
 
 extension XCTestCase {
 

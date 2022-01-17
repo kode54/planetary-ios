@@ -8,6 +8,8 @@
 
 import XCTest
 
+import Bot
+
 class ContentTests: XCTestCase {
 
     func test_keyValue() {

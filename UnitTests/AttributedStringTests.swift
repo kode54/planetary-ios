@@ -8,6 +8,8 @@
 
 import XCTest
 
+import Bot
+
 class AttributedStringTests: XCTestCase {
 
     func test_aboutToAttributedStringToMarkdown() {

@@ -1,6 +1,7 @@
 import Multipart
 import UIKit
 import XCTest
+import Bot
 
 //extension Dictionary {
 //

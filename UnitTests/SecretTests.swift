@@ -7,6 +7,8 @@
 //
 
 import XCTest
+import Bot
+import SSB
 
 class SecretTests: XCTestCase {
 

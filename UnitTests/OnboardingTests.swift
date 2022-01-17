@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import Bot
 
 /// Integration tests to verify that various aspects of the onboarding flow are working.
 class OnboardingTests: XCTestCase {

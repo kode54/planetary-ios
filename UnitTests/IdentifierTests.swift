@@ -8,6 +8,9 @@
 
 import XCTest
 
+import Bot
+import SSB
+
 class IdentifierTests: XCTestCase {
 
     func test_algorithm() {

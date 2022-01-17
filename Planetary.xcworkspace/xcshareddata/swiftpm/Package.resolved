@@ -20,15 +20,6 @@
         }
       },
       {
-        "package": "Bot",
-        "repositoryURL": "https://github.com/planetary-social/bot-ios",
-        "state": {
-          "branch": null,
-          "revision": "aaf2a67e8b657859d385d3a7508132e54f1bdb9e",
-          "version": "0.0.2"
-        }
-      },
-      {
         "package": "Bugsnag",
         "repositoryURL": "https://github.com/bugsnag/bugsnag-cocoa",
         "state": {
@@ -107,15 +98,6 @@
           "branch": null,
           "revision": "60a65015f6402b7c34b9a924f755ca0a73afeeaa",
           "version": "0.13.1"
-        }
-      },
-      {
-        "package": "SSB",
-        "repositoryURL": "https://github.com/planetary-social/ssb-ios",
-        "state": {
-          "branch": null,
-          "revision": "559df3a367e126d207a1308effb0fd24ec058197",
-          "version": "0.0.4"
         }
       },
       {

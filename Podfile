@@ -11,7 +11,6 @@ target 'Planetary' do
     pod 'KeychainSwift', '19.0.0'
     pod 'PhoneNumberKit', '3.2.0'
     pod 'SVProgressHUD', '2.2.5'
-    pod 'CocoaLumberjack/Swift', '3.6.1'
     pod 'Down', '0.9.2'
     pod 'SkeletonView', '1.8.7'
     pod 'ZendeskSupportSDK'

@@ -12,6 +12,9 @@
 //  Copyright © 2019 Verse Communications Inc. All rights reserved.
 //
 
+import SSB
+import Bot
+
 let reproKey = Secret(from: """
 {
   "curve": "ed25519",
@@ -29,7 +32,7 @@ import XCTest
 
 class API_GoBot: XCTestCase {
     
-    static var bot = GoBot()
+    static var bot = Bot()
 
     func test00_login() {
         let fm = FileManager.default
