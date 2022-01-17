@@ -101,6 +101,15 @@
         }
       },
       {
+        "package": "SSB",
+        "repositoryURL": "https://github.com/planetary-social/ssb-ios",
+        "state": {
+          "branch": null,
+          "revision": "f1d15d3f196a27da4d6c13197524b65b25881bfb",
+          "version": "0.0.5"
+        }
+      },
+      {
         "package": "swift-log",
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {

@@ -8,7 +8,10 @@
 //  Copyright © 2019 Verse Communications Inc. All rights reserved.
 //
 
+@testable import Planetary
 import XCTest
+import Bot
+import SSB
 
 fileprivate let botTestsKey = Secret(from: """
 {"curve":"ed25519","id":"@shwQGai09Tv+Pjbgde6lmhQhc34NURtP2iwnI0xsKtQ=.ggfeed-v1","private":"RdUdi8VQFb38R3Tyv9/iWZwRmCy1L1GfbR6JVrTLHkKyHBAZqLT1O/4+NuB17qWaFCFzfg1RG0/aLCcjTGwq1A==.ed25519","public":"shwQGai09Tv+Pjbgde6lmhQhc34NURtP2iwnI0xsKtQ=.ed25519"}
