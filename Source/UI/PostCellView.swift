@@ -80,7 +80,7 @@ class PostCellView: KeyValueView {
                 return
             } else {
                 self.truncationData = nil
-                self.configureTruncatedState()
+                configureTextView()
             }
         }
     }
@@ -91,25 +91,13 @@ class PostCellView: KeyValueView {
 
     var textIsExpanded = false {
         didSet {
-            self.updateFullPostText()
-            self.configureTruncatedState()
+            configureTextView()
         }
     }
 
-    func toggleExpanded() {
-        self.textIsExpanded = !self.textIsExpanded
-    }
-
-    private func updateFullPostText() {
-        guard self.textIsExpanded else { return }
-        guard let keyValue = self.keyValue, keyValue.value.content.isPost else { return }
-        let string = Caches.text.from(keyValue).mutable()
-        self.fullPostText = string
-    }
-
-    func configureTruncatedState() {
-        self.calculateTruncationDataIfNecessary()
-        self.textView.attributedText = self.truncationData?.text ?? self.fullPostText
+    func configureTextView() {
+        calculateTruncationDataIfNecessary()
+        textView.attributedText = textIsExpanded ? fullPostText : truncationData?.text
         
         //not so clean but it gest likes displaying.
         if self.textView.attributedText.string.isSingleEmoji && self.keyValue?.value.content.type == Planetary.ContentType.vote {
@@ -157,7 +145,7 @@ class PostCellView: KeyValueView {
         // which must be recalculated when the width is changed
         if let width = self.truncationData?.width, self.textView.frame.width != width {
             self.truncationData = nil
-            self.configureTruncatedState()
+            configureTextView()
         }
     }
 
@@ -233,16 +221,14 @@ class PostCellView: KeyValueView {
             
             self.fullPostText = NSAttributedString(string: expression)
             self.textView.text = expression
-            self.configureTruncatedState()
+            configureTextView()
             
             self.galleryViewFullHeightConstraint.isActive = false
             self.galleryViewZeroHeightConstraint.isActive = true
             self.galleryViewBottomConstraint?.constant = 0
         } else if let post = keyValue.value.content.post {
-            let text = self.shouldTruncate ? Caches.truncatedText.from(keyValue) : Caches.text.from(keyValue)
-            
-            self.fullPostText = text
-            self.configureTruncatedState()
+            self.fullPostText = Caches.text.from(keyValue)
+            configureTextView()
 
             self.galleryViewFullHeightConstraint.isActive = post.hasBlobs
             self.galleryViewZeroHeightConstraint.isActive = !post.hasBlobs

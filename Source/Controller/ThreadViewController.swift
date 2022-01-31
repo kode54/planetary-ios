@@ -399,7 +399,7 @@ extension ThreadViewController: ThreadReplyPaginatedTableViewDataSourceDelegate 
     func threadReplyView(view: ThreadReplyView, didLoad keyValue: KeyValue) {
         view.tapGesture.tap = { [weak self] in
             self?.tableView.beginUpdates()
-            view.toggleExpanded()
+            view.textIsExpanded.toggle()
             self?.tableView.endUpdates()
 
             if view.textIsExpanded {
