@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Contact: ContentCodable {
+struct Contact: ContentCodable, Equatable {
 
     let type: ContentType
     let contact: Identity

@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Mention: Codable {
+struct Mention: Codable, Equatable {
 
     let link: Identifier
     let name: String?

@@ -12,19 +12,19 @@ import Foundation
 // address is multiserver encoded like net:10.10.0.1:8008~shs:pybKey=
 // but only go bot has to deal with that.
 // just using sqlite the datastore for enable/worked
-struct Address: Codable {
+struct Address: Codable, Equatable {
     let type: ContentType
     let address: String
     let availability: Double
 }
 
 
-struct Pub: ContentCodable {
+struct Pub: ContentCodable, Equatable {
     let type: ContentType
     let address: PubAddress
 }
 
-struct PubAddress: Codable {
+struct PubAddress: Codable, Equatable {
     let key: Identifier
     let host: String
     let port: UInt

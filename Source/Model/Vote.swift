@@ -11,13 +11,13 @@ import Foundation
 /// Unlike other content models, the Vote model is actually
 /// a child of Content as opposed to a flavor of it.  As such,
 /// it requires special decoding via the ContentVote model.
-struct Vote: Codable {
+struct Vote: Codable, Equatable {
     let link: Identifier
     let value: Int
     let expression: String?
 }
 
-struct ContentVote: ContentCodable {
+struct ContentVote: ContentCodable, Equatable {
     
     enum CodingKeys: String, CodingKey {
         case branch

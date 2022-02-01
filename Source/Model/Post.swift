@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Post: ContentCodable {
+struct Post: ContentCodable, Equatable {
 
     enum CodingKeys: String, CodingKey {
         case branch
@@ -96,7 +96,7 @@ class Post: ContentCodable {
     }
 
     /// Intended to be used to decode a model from JSON.
-    required init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         branch = Post.decodeBranch(from: values)
         mentions = try? values.decode([Mention].self, forKey: .mentions)
@@ -136,7 +136,7 @@ extension Post {
  handling from https://stackoverflow.com/a/49023027
 */
 
-enum RecipientElement: Codable {
+enum RecipientElement: Codable, Equatable {
     case namedKey(RecipientNamedKey)
     case string(Identity)
     
@@ -164,7 +164,7 @@ enum RecipientElement: Codable {
     }
 }
 
-struct RecipientNamedKey: Codable {
+struct RecipientNamedKey: Codable, Equatable {
     let link: Identity
     let name: String
     

@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Content: Codable {
+struct Content: Codable, Equatable {
 
     /// Used to when decoding has encountered a JSON blob
     /// that does not contain a 'type' field.

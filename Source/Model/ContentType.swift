@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum ContentType: String, CaseIterable, Codable {
+enum ContentType: String, CaseIterable, Codable, Equatable {
 
     case address
     case about

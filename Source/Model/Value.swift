@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct Value: Codable {
+struct Value: Codable, Equatable {
     let author: Identity
     let content: Content
     let hash: String

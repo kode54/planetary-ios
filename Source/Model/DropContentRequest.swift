@@ -8,7 +8,7 @@
 
 import Foundation
 
-class DropContentRequest: ContentCodable {
+struct DropContentRequest: ContentCodable, Equatable {
     let type: ContentType
     
     let sequence: UInt           // the sequence number on the authors feed
@@ -26,7 +26,7 @@ class DropContentRequest: ContentCodable {
         case hash
     }
     
-    required init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         self.type = try values.decode(ContentType.self, forKey: .type)
         self.sequence = try values.decode(UInt.self, forKey: .sequence)

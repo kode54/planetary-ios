@@ -43,15 +43,15 @@ struct KeyValue: Codable {
     
     // MARK: Metadata
 
-    struct Metadata {
+    struct Metadata: Equatable {
 
-        struct Author {
+        struct Author: Equatable {
             var about: About?
         }
 
         var author = Author()
 
-        struct Replies {
+        struct Replies: Equatable {
             var count: Int = 0
             var abouts: [About] = []
         }
@@ -62,13 +62,6 @@ struct KeyValue: Codable {
     }
 
     var metadata = Metadata()
-}
-
-extension KeyValue: Equatable {
-
-    static func == (lhs: KeyValue, rhs: KeyValue) -> Bool {
-        return lhs.key == rhs.key
-    }
 }
 
 extension KeyValue: Hashable {
